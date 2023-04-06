@@ -16,7 +16,6 @@ class Pacman(MovableEntity):
         image_path = level.settings["pacman"]["image"]
         walk_path = level.settings["pacman"]["walk"]
 
-
         super().__init__(level, size=size, speed=speed, image_path=image_path)
 
         self.image_idle = pygame.image.load(image_path).convert_alpha()
@@ -29,6 +28,8 @@ class Pacman(MovableEntity):
 
         self.frame_counter = 0
         self.current_frame = 0
+
+        self.is_dead = False
 
     def split_walk_frames(
         self, image: pygame.Surface, frame_size: tuple[int, int], num_frames: int
@@ -101,6 +102,24 @@ class Pacman(MovableEntity):
         elif self.rect.bottom < 0:
             self.rect.top = screen_height
 
+    def die(self) -> None:
+        """
+        Переводить Pacman в стан смерті.
+        """
+
+        self.is_dead = True
+
+    def check_collision(self, rect: pygame.Rect) -> None:
+        """
+        Перевіряє чи не зіткнувся Pacman з іншими об’єктами.
+        """
+
+        collided_ghosts = pygame.sprite.spritecollide(self, self.level.ghosts, False)
+        if collided_ghosts:
+            self.die()
+
+        return super().check_collision(rect)
+
     def change_direction(self, x: int, y: int):
         """
         Змінює напрямок руху Pacman.
@@ -129,3 +148,10 @@ class Pacman(MovableEntity):
         """
 
         self.level.game.score += food.points
+
+    def reset(self) -> None:
+        """
+        Скидає стан Pacman до початкового.
+        """
+
+        self.__init__(self.level)

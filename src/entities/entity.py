@@ -63,6 +63,9 @@ class MovableEntity(Entity):
         self.speed = speed
         self.direction = pygame.math.Vector2(0, 0)
 
+    def update(self) -> None:
+        self.move()
+
     def move(self) -> None:
         """
         Переміщає сутність у вказаному напрямку.

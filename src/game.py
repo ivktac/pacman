@@ -84,6 +84,11 @@ class Game:
         Цей метод відповідає за оновлення позицій і станів усіх ігрових об’єктів.
         """
 
+        if self.pacman.is_dead:
+            self.level.current_level = 1
+            self.level.restart()
+            return
+
         self.level.update()
 
     def draw(self) -> None:

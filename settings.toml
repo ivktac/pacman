@@ -27,6 +27,7 @@ walk = "assets/images/pacman_walk.png"
 [ghost]
 image = "assets/images/ghost.png"
 speed = 2
+size = 32
 
 [wall]
 size = 40
