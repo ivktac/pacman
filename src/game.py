@@ -1,6 +1,4 @@
 import sys
-from functools import partial
-
 import pygame
 
 from entities.pacman import Pacman
