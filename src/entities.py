@@ -87,9 +87,11 @@ class Pacman(Entity):
         Оновлює положення Pacman.
         """
 
-        new_position = self.rect.move(self.direction * self.speed)
+        new_position = self.rect.move(self.direction * self.speed)        
         if not self.check_collision(new_position):
             self.rect = new_position
+
+        self.wrap_around()
 
     def rotate(self) -> None:
         angle = self.direction.angle_to(pygame.math.Vector2(1, 0))
@@ -104,6 +106,24 @@ class Pacman(Entity):
             if rect.colliderect(wall.rect):
                 return True
         return False
+
+    def wrap_around(self) -> None:
+        """
+        Переміщає Pacman на іншу сторону екрану, якщо він виходить за межі.
+        """
+
+        screen_width = self.level.settings.screen["width"]
+        screen_height = self.level.settings.screen["height"]
+
+        if self.rect.left > screen_width:
+            self.rect.right = 0
+        elif self.rect.right < 0:
+            self.rect.left = screen_width
+        
+        if self.rect.top > screen_height:
+            self.rect.bottom = 0
+        elif self.rect.bottom < 0:
+            self.rect.top = screen_height
 
     def change_direction(self, x, y):
         """
@@ -143,7 +163,7 @@ class Wall(Entity):
         image = pygame.image.load(image_path).convert_alpha()
         self.image = pygame.transform.scale(image, [self.size, self.size])
 
-        self.rect = self.image.get_rect(topleft=[x * self.size, y*self.size])
+        self.rect = self.image.get_rect(topleft=[x * self.size, y * self.size])
 
     def draw(self, screen):
         """
