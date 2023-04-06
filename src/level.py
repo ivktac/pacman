@@ -2,7 +2,8 @@ import os
 from typing import TYPE_CHECKING
 
 import pygame
-from entities import Food, Wall
+from entities.food import Food
+from entities.wall import Wall
 
 if TYPE_CHECKING:
     from game import Game
@@ -35,7 +36,7 @@ class Level:
                         self.walls.add(wall)
                     case "P":
                         self.place_player(x, y)
-                    case '*':
+                    case "*":
                         food = Food(self, x, y)
                         self.foods.add(food)
 

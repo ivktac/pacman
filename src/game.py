@@ -3,8 +3,8 @@ from functools import partial
 
 import pygame
 
-from entities import Pacman
-from levels import Level
+from entities.pacman import Pacman
+from level import Level
 from settings import Settings
 
 
