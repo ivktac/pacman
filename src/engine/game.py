@@ -79,6 +79,7 @@ class Game:
             if self.pacman.is_dead:
                 self.restart()
                 self.pacman.respawn()
+                self.current_menu = self.end_menu
                 return
 
             if self.level.is_completed():
