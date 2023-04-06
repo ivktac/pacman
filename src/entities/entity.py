@@ -10,11 +10,11 @@ if TYPE_CHECKING:
 class IEntity(ABC):
     @abstractmethod
     def update(self) -> None:
-        pass
+        ...
 
     @abstractmethod
     def draw(self, screen: pygame.Surface) -> None:
-        pass
+        ...
 
 
 class Entity(IEntity, pygame.sprite.Sprite):
@@ -46,14 +46,10 @@ class Entity(IEntity, pygame.sprite.Sprite):
                 )
 
     def draw(self, screen: pygame.Surface) -> None:
-        """
-        Відобразити сутність на екрані.
-        """
-
         screen.blit(self.image, self.rect)
 
     def update(self) -> None:
-        pass
+        ...
 
 
 class MovableEntity(Entity):
@@ -64,17 +60,9 @@ class MovableEntity(Entity):
         self.direction = pygame.math.Vector2(0, 0)
 
     def update(self) -> None:
-        """
-        Оновити сутність.
-        """
-
         self.move()
 
     def move(self) -> None:
-        """
-        Перемістити сутність в напрямку, вказаному в `direction`.
-        """
-
         new_position = self.rect.move(self.direction * self.speed)
         if not self.check_collision(new_position):
             self.rect = new_position
@@ -82,10 +70,6 @@ class MovableEntity(Entity):
         self.wrap_around()
 
     def check_collision(self, rect: pygame.Rect) -> bool:
-        """
-        Перевірити чи зіткнулась сутність з іншими об’єктами.
-        """
-
         for wall in self.level.walls:
             if wall.rect.colliderect(rect):
                 return True
@@ -93,10 +77,6 @@ class MovableEntity(Entity):
         return False
 
     def wrap_around(self) -> None:
-        """
-        Перемістити сутність на іншу сторону екрану, якщо він виходить за межі.
-        """
-
         screen_width, screen_height = pygame.display.get_surface().get_size()
 
         if self.rect.left > screen_width - 10:

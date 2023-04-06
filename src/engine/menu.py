@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 import pygame
 
 from typing import TYPE_CHECKING
@@ -6,7 +7,13 @@ if TYPE_CHECKING:
     from engine.game import Game
 
 
-class Menu:
+class IMenu(ABC):
+    @abstractmethod
+    def draw(self, screen: pygame.Surface) -> None:
+        ...
+
+
+class Menu(IMenu):
     def __init__(
         self,
         options: list[tuple[str, callable]],
@@ -57,7 +64,7 @@ class Menu:
         action()
 
     def update(self) -> None:
-        pass
+        ...
 
 
 class StartMenu(Menu):
@@ -89,7 +96,7 @@ class EndMenu(Menu):
 
         self.game_end_text = "Гра завершена!"
         self.game_end_surface = self.font.render(
-            self.game_end_text, True, self.colors["text"]
+            self.game_end_text, True, game.settings["colors"]["end"]
         )
         self.game_end_rect = self.game_end_surface.get_rect()
 
@@ -98,4 +105,5 @@ class EndMenu(Menu):
 
         self.game_end_rect.center = width // 2, height // 4
         screen.blit(self.game_end_surface, self.game_end_rect)
+
         return super().draw(screen)

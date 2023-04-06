@@ -1,3 +1,4 @@
+import os
 import sys
 import pygame
 
@@ -15,7 +16,7 @@ class Game:
 
         self.settings = settings
         self.screen = pygame.display.set_mode(
-            [self.settings["screen"]["width"], self.settings["screen"]["height"]]
+            (self.settings["screen"]["width"], self.settings["screen"]["height"])
         )
 
         self.clock = pygame.time.Clock()
@@ -42,10 +43,6 @@ class Game:
         self.is_debug = self.settings["game"]["debug"]
 
     def run(self) -> None:
-        """
-        Запускає гру.
-        """
-
         while self.is_running:
             self.handle_events()
             self.update()
@@ -53,10 +50,6 @@ class Game:
             self.clock.tick(self.fps)
 
     def handle_events(self) -> None:
-        """
-        Обробляє події, такі як натискання клавіш і закриття вікна.
-        """
-
         for event in pygame.event.get():
             match event.type:
                 case pygame.QUIT:
@@ -72,12 +65,6 @@ class Game:
                         self.pacman.handle_keydown(event.key)
 
     def update(self) -> None:
-        """
-        Оновлює стан гри, викликавши метод оновлення об’єкта Level.
-
-        Цей метод відповідає за оновлення позицій і станів усіх ігрових об’єктів.
-        """
-
         if self.current_menu:
             self.current_menu.update()
         else:
@@ -95,12 +82,6 @@ class Game:
             self.level.update()
 
     def draw(self) -> None:
-        """
-        Малює елементи гри на екрані, викликавши метод малювання об’єкта Level.
-
-        Цей метод відповідає за відтворення всіх ігрових об’єктів на екрані.
-        """
-
         self.clear_screen()
 
         if self.current_menu:
@@ -112,10 +93,6 @@ class Game:
         pygame.display.flip()
 
     def clear_screen(self) -> None:
-        """
-        Очищує екран коліром, визначеним в налаштуваннях перед кожним кадром.
-        """
-
         self.screen.fill(self.settings["colors"]["background"])
 
     def start(self) -> None:
@@ -123,13 +100,6 @@ class Game:
         self.load_level()
 
     def pause(self) -> None:
-        """
-        Зупиняє гру та показує меню з такими опціями:
-            - `Продовжити` - продовжує гру
-            - `Перезапустити` - починає гру з початку
-            - `Вийти` - виходить з гри
-        """
-
         self.is_paused = True
         self.current_menu = self.paused_menu
 
@@ -144,15 +114,13 @@ class Game:
         self.current_menu = None
 
     def restart(self) -> None:
-        """
-        Перезапускає гру.
-        """
+        self.score = 0
+        self.current_level = 1
 
         self.current_menu = None
         self.is_paused = False
+        
         self.level.restart()
-        self.score = 0
-        self.current_level = 1
         self.load_level()
 
     def quit(self) -> None:
@@ -160,26 +128,18 @@ class Game:
         sys.exit()
 
     def display_ui(self) -> None:
-        """
-        Відображає інтерфейс користувача, такий як:
-            - рахунок
-            - рівень
-            - життя
-        """
-
         self.ui.display_score(self.screen, self.score)
         self.ui.display_level(self.screen, self.current_level)
         self.ui.display_health(self.screen, self.pacman.health)
 
     def load_level(self) -> None:
-        """
-        Завантажує дані рівня та створює відповідні об’єкти.
-        """
-
-        try:
-            self.level.load(self.current_level)
-        except FileNotFoundError:
+        filename = f"assets/levels/{self.current_level}.txt"
+        if not os.path.exists(filename):
             self.current_menu = self.end_menu
+            return
+
+        with open(filename, "r") as file:
+            self.level.create(file.readlines())
 
     def debug_handle_keydown(self, key: int) -> None:
         match key:

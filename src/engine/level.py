@@ -21,29 +21,14 @@ class Level:
         self.ghosts = pygame.sprite.Group()
 
     def clean(self) -> None:
-        """
-        Скинути стан рівня до початкового.
-        """
-
         self.walls.empty()
         self.foods.empty()
         self.ghosts.empty()
 
-    def load(self, level_number: int) -> None:
-        """
-        Завантажити дані рівня та створити відповідні об’єкти.
-        """
-
+    def create(self, data) -> None:
         self.clean()
 
-        filename = os.path.join("assets/levels/", f"{level_number}.txt")
-        if not os.path.exists(filename):
-            raise FileNotFoundError(f"Level file {filename} not found")
-
-        with open(filename, "r") as file:
-            lines = file.readlines()
-
-        for y, line in enumerate(lines):
+        for y, line in enumerate(data):
             for x, tile in enumerate(line):
                 match tile:
                     case "=":
@@ -59,23 +44,18 @@ class Level:
                     case "G":
                         self.ghosts.add(Ghost(self, x, y))
 
-
     def draw(self, screen: pygame.Surface) -> None:
-        self.ghosts.draw(screen)
-        self.game.pacman.draw(screen)
         self.walls.draw(screen)
         self.foods.draw(screen)
+        self.ghosts.draw(screen)
+        self.game.pacman.draw(screen)
 
     def update(self) -> None:
         self.game.pacman.update()
         self.ghosts.update()
 
     def restart(self) -> None:
-
-        self.walls.empty()
-        self.foods.empty()
-        self.ghosts.empty()
-
+        self.clean()
         self.game.pacman.respawn()
 
     def is_completed(self) -> bool:

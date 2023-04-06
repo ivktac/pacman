@@ -21,7 +21,7 @@ class Food(Entity):
                 image_path = "assets/images/blueberry.png"
                 self.points = 300
             case _:
-                pass
+                ...
 
         if image_path is not None:
             super().__init__(level, size=32, image_path=image_path)

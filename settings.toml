@@ -1,6 +1,6 @@
 [game]
 title = "Pacman"
-debug = false
+debug = true
 fps = 60
 
 [screen]
@@ -11,6 +11,7 @@ height = 800
 background = "black"
 text = "white"
 selected = "yellow"
+end = "red"
 
 [font]
 size = 24

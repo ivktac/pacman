@@ -1,9 +1,9 @@
 from engine.game import Game
-from engine.settings import Settings
+from engine.settings import JsonSettings
 
 
 def main() -> None:
-    settings = Settings()
+    settings = JsonSettings()
     game = Game(settings)
     game.run()
 
