@@ -7,11 +7,20 @@ if TYPE_CHECKING:
 
 
 class Entity(pygame.sprite.Sprite):
+    image: pygame.Surface
+    rect: pygame.Rect
+
     def __init__(self, level: "Level") -> None:
         super().__init__()
 
         self.level = level
-        # ... common entity properties
+
+    def draw(self, screen: pygame.Surface) -> None:
+        """
+        Відображає сутність на екрані.
+        """
+
+        screen.blit(self.image, self.rect)
 
 
 class Pacman(Entity):
@@ -59,13 +68,6 @@ class Pacman(Entity):
         self.move()
         self.animate()
 
-    def draw(self, screen: pygame.Surface) -> None:
-        """
-        Відображає Pacman на екрані.
-        """
-
-        screen.blit(self.image, self.rect)
-
     def animate(self) -> None:
         """
         Оновлює зображення Pacman, як-от зміну кадру анімації.
@@ -87,7 +89,7 @@ class Pacman(Entity):
         Оновлює положення Pacman.
         """
 
-        new_position = self.rect.move(self.direction * self.speed)        
+        new_position = self.rect.move(self.direction * self.speed)
         if not self.check_collision(new_position):
             self.rect = new_position
 
@@ -119,33 +121,33 @@ class Pacman(Entity):
             self.rect.right = 0
         elif self.rect.right < 0:
             self.rect.left = screen_width
-        
+
         if self.rect.top > screen_height:
             self.rect.bottom = 0
         elif self.rect.bottom < 0:
             self.rect.top = screen_height
 
-    def change_direction(self, x, y):
+    def change_direction(self, x: int, y: int):
         """
         Змінює напрямок руху Pacman.
         """
 
         self.direction = pygame.math.Vector2(x, y)
 
-    def set_position(self, x, y):
+    def set_position(self, x: int, y: int):
         """
         Задає положення Pacman.
         """
 
         self.rect = self.rect.move(x, y)
 
-    def increase_hearts(self, amount):
+    def increase_hearts(self, amount: int):
         """
         Збільшує кількість сердець Pacman на задану кількість.
         """
         pass
 
-    def decrease_hearts(self, amount):
+    def decrease_hearts(self, amount: int):
         """
         Зменшує кількість сердець Pacman на задану кількість.
         """
@@ -153,11 +155,10 @@ class Pacman(Entity):
 
 
 class Wall(Entity):
-    def __init__(self, level, x, y) -> None:
+    def __init__(self, level: "Level", x: int, y: int) -> None:
         super().__init__(level)
 
         self.size = self.level.settings.wall["size"]
-        self.color = self.level.settings.colors["wall"]
 
         image_path = self.level.settings.wall["image"]
         image = pygame.image.load(image_path).convert_alpha()
@@ -165,24 +166,32 @@ class Wall(Entity):
 
         self.rect = self.image.get_rect(topleft=[x * self.size, y * self.size])
 
-    def draw(self, screen):
-        """
-        Відображає стіну на екрані.
-        """
 
-        screen.blit(self.image, self.rect)
+class Food(Entity):
+    def __init__(self, level: "Level", x: int, y: int) -> None:
+        super().__init__(level)
+
+        self.size = self.level.settings.food["size"]
+        self.wall_size = self.level.settings.wall["size"]
+        self.color = self.level.settings.colors["food"]
+
+        self.image = pygame.Surface(
+            [self.size, self.size], pygame.SRCALPHA, 32
+        ).convert_alpha()
+
+        pygame.draw.circle(
+            self.image, self.color, (self.size // 2, self.size // 2), self.size // 2
+        )
+
+        self.rect = self.image.get_rect(
+            topleft=[x * self.wall_size + self.size, y * self.wall_size + self.size]
+        )
 
 
 class Ghost(Entity):
-    def __init__(self, level) -> None:
+    def __init__(self, level: "Level") -> None:
         super().__init__(level)
         # ... specific Ghost properties
-
-
-class Food(Entity):
-    def __init__(self, level) -> None:
-        super().__init__(level)
-        # ... specific Food properties
 
 
 class Inky(Ghost):

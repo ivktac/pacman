@@ -12,5 +12,6 @@ class Settings:
         self.wall = self.config["wall"]
         self.pacman = self.config["pacman"]
         self.ghost = self.config["ghost"]
+        self.food = self.config["food"]
         
         self.levels = self.config["levels"]

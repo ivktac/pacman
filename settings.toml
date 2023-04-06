@@ -4,8 +4,8 @@ height = 800
 fps = 60
 
 [colors]
-background = [0, 0, 0]
-wall = [255, 255, 255]
+background = "black"
+food = "white"
 
 [controls]
 up = "w"
@@ -30,3 +30,6 @@ image = "assets/images/wall.png"
 
 [levels]
 path = "assets/levels/"
+
+[food]
+size = 10

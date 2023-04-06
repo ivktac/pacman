@@ -2,7 +2,7 @@ import os
 from typing import TYPE_CHECKING
 
 import pygame
-from entities import Wall
+from entities import Food, Wall
 
 if TYPE_CHECKING:
     from game import Game
@@ -16,6 +16,7 @@ class Level:
         self.current_level = 1
 
         self.walls = pygame.sprite.Group()
+        self.foods = pygame.sprite.Group()
 
     def load_level(self, level_number: int) -> None:
         """
@@ -34,6 +35,9 @@ class Level:
                         self.walls.add(wall)
                     case "P":
                         self.place_player(x, y)
+                    case '*':
+                        food = Food(self, x, y)
+                        self.foods.add(food)
 
     def place_player(self, x, y) -> None:
         """
@@ -48,8 +52,9 @@ class Level:
         Малює елементи гри на екрані, викликавши метод малювання об’єкта Level.
         """
 
-        self.walls.draw(screen)
         self.game.pacman.draw(screen)
+        self.walls.draw(screen)
+        self.foods.draw(screen)
 
     def update(self) -> None:
         """
