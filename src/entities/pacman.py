@@ -56,14 +56,6 @@ class Pacman(MovableEntity):
         self.animate()
         self.eat_food()
 
-    def move(self) -> None:
-        """
-        Оновлює положення Pacman.
-        """
-
-        super().move()
-        self.wrap_around()
-
     def animate(self) -> None:
         """
         Оновлює зображення Pacman, як-от зміну кадру анімації.
@@ -84,23 +76,6 @@ class Pacman(MovableEntity):
         angle = self.direction.angle_to(pygame.math.Vector2(1, 0))
         return pygame.transform.rotate(self.image, angle)
 
-    def wrap_around(self) -> None:
-        """
-        Переміщає Pacman на іншу сторону екрану, якщо він виходить за межі.
-        """
-
-        screen_width = self.level.settings["screen"]["width"]
-        screen_height = self.level.settings["screen"]["height"]
-
-        if self.rect.left > screen_width:
-            self.rect.right = 0
-        elif self.rect.right < 0:
-            self.rect.left = screen_width
-
-        if self.rect.top > screen_height:
-            self.rect.bottom = 0
-        elif self.rect.bottom < 0:
-            self.rect.top = screen_height
 
     def die(self) -> None:
         """
@@ -132,7 +107,7 @@ class Pacman(MovableEntity):
         Задає положення Pacman.
         """
 
-        self.rect = self.rect.move(x, y)
+        self.rect.topleft = [x, y]
 
     def eat_food(self):
         """
@@ -149,9 +124,18 @@ class Pacman(MovableEntity):
 
         self.level.game.score += food.points
 
+    def respawn(self) -> None:
+        """
+        Скидає стан Pacman до початкового.
+        """
+
+        self.is_dead = False
+        self.reset()
+
     def reset(self) -> None:
         """
         Скидає стан Pacman до початкового.
         """
 
-        self.__init__(self.level)
+        self.image = self.image_idle
+        self.direction = pygame.math.Vector2(0, 0)

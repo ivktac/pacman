@@ -75,6 +75,8 @@ class MovableEntity(Entity):
         if not self.check_collision(new_position):
             self.rect = new_position
 
+        self.wrap_around()
+
     def check_collision(self, rect: pygame.Rect) -> bool:
         """
         Перевіряє чи не виникла колізія з стіною.
@@ -85,3 +87,21 @@ class MovableEntity(Entity):
                 return True
 
         return False
+
+    def wrap_around(self) -> None:
+        """
+        Переміщає сутність на іншу сторону екрану, якщо він виходить за межі.
+        """
+
+        screen_width = self.level.settings["screen"]["width"]
+        screen_height = self.level.settings["screen"]["height"]
+
+        if self.rect.left > screen_width - 10:
+            self.rect.right = 10
+        elif self.rect.right < 10:
+            self.rect.left = screen_width - 10
+
+        if self.rect.top > screen_height - 10:
+            self.rect.bottom = 10
+        elif self.rect.bottom < 10:
+            self.rect.top = screen_height - 10

@@ -38,7 +38,8 @@ class Level:
                         wall = Wall(self, x, y)
                         self.walls.add(wall)
                     case "P":
-                        self.place_player(x, y)
+                        size = self.settings["wall"]["size"]
+                        self.game.pacman.set_position(x * size, y * size)
                     case "*":
                         food = Food(self, x, y)
                         self.foods.add(food)
@@ -46,13 +47,6 @@ class Level:
                         ghost = Ghost(self, x, y)
                         self.ghosts.add(ghost)
 
-    def place_player(self, x, y) -> None:
-        """
-        Поміщає гравця на початкову позицію.
-        """
-
-        size = self.settings["wall"]["size"]
-        self.game.pacman.set_position(x * size, y * size)
 
     def draw(self, screen: pygame.Surface) -> None:
         """
@@ -68,25 +62,31 @@ class Level:
         """
         Оновлює стан рівня, як-от положення та взаємодію усіх об’єктів на рівні.
         """
-
-        if self.game.pacman.is_dead:
-            self.restart()
+        
+        if len(self.foods) == 0:
+            self.next_level()
             return
 
         self.game.pacman.update()
         self.ghosts.update()
 
-    def restart(self) -> None:
+    def reload(self) -> None:
         """
-        Скидає рівень.
+        Перезавантажує рівень.
         """
-
-        self.game.score = 0
 
         self.walls.empty()
         self.foods.empty()
         self.ghosts.empty()
 
-        self.game.pacman.reset()
-
         self.load_level(self.current_level)
+
+    def next_level(self) -> None:
+        """
+        Переходить до наступного рівня.
+        """
+
+        self.current_level += 1
+        self.reload()
+
+        self.game.pacman.reset()

@@ -85,8 +85,8 @@ class Game:
         """
 
         if self.pacman.is_dead:
-            self.level.current_level = 1
-            self.level.restart()
+            self.restart()
+            self.pacman.respawn()
             return
 
         self.level.update()
@@ -109,6 +109,15 @@ class Game:
         """
 
         self.screen.fill(self.settings["colors"]["background"])
+
+    def restart(self) -> None:
+        """
+        Перезапускає гру.
+        """
+
+        self.score = 0
+        self.level.current_level = 1
+        self.level.reload()
 
     def display_score(self) -> None:
         """
