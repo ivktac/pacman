@@ -15,8 +15,8 @@ class Game:
         self.clock = pygame.time.Clock()
 
         self.level = Level(self)
-        self.load_level()
         self.pacman = Pacman(self.level)
+        self.load_level()
 
     def run(self) -> None:
         """

@@ -1,14 +1,31 @@
 [screen]
-width = 640
-height = 480
+width = 800
+height = 800
 fps = 60
 
 [colors]
 background = [0, 0, 0]
 wall = [255, 255, 255]
 
+[controls]
+up = "w"
+down = "s"
+left = "a"
+right = "d"
+
 [pacman]
+size = 32
 speed = 4
+image = "assets/images/pacman.png"
+walk = "assets/images/pacman_walk.png"
 
 [ghost]
+image = "assets/images/ghost.png"
 speed = 2
+
+[wall]
+size = 40
+image = "assets/images/wall.png"
+
+[levels]
+path = "assets/levels/"

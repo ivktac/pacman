@@ -1,7 +1,7 @@
 [tool.pdm]
 [tool.pdm.dev-dependencies]
 dev = [
-    "autopep8>=2.0.2",
+    "black>=23.3.0",
 ]
 
 [project]

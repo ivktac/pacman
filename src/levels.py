@@ -1,3 +1,4 @@
+import os
 from typing import TYPE_CHECKING
 
 import pygame
@@ -18,23 +19,33 @@ class Level:
 
     def load_level(self, level_number: int) -> None:
         """
-            Завантажує дані рівня та створює відповідні об’єкти.
+        Завантажує дані рівня та створює відповідні об’єкти.
         """
 
-        wall_data = [
-            {"x": 0, "y": 0, "width": 640, "height": 20},  # Top border
-            {"x": 0, "y": 460, "width": 640, "height": 20},  # Bottom border
-            {"x": 0, "y": 0, "width": 20, "height": 480},  # Left border
-            {"x": 620, "y": 0, "width": 20, "height": 480},  # Right border
-        ]
+        filename = os.path.join(self.settings.levels["path"], f"{level_number}.txt")
+        with open(filename, "r") as file:
+            lines = file.readlines()
 
-        for wall_info in wall_data:
-            wall = Wall(self, **wall_info)
-            self.walls.add(wall)
+        for y, line in enumerate(lines):
+            for x, tile in enumerate(line):
+                match tile:
+                    case "=":
+                        wall = Wall(self, x, y)
+                        self.walls.add(wall)
+                    case "P":
+                        self.place_player(x, y)
+
+    def place_player(self, x, y) -> None:
+        """
+        Поміщає гравця на початкову позицію.
+        """
+
+        size = self.settings.wall["size"]
+        self.game.pacman.set_position(x * size, y * size)
 
     def draw(self, screen: pygame.Surface) -> None:
         """
-            Малює елементи гри на екрані, викликавши метод малювання об’єкта Level.
+        Малює елементи гри на екрані, викликавши метод малювання об’єкта Level.
         """
 
         self.walls.draw(screen)
@@ -42,7 +53,7 @@ class Level:
 
     def update(self) -> None:
         """
-            Оновлює стан рівня, як-от положення та взаємодію усіх об’єктів на рівні.
+        Оновлює стан рівня, як-от положення та взаємодію усіх об’єктів на рівні.
         """
 
         self.game.pacman.update()
