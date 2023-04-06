@@ -5,7 +5,7 @@ import pygame
 from entities.pacman import Pacman
 from engine.level import Level
 from engine.settings import ISettings
-from engine.menu import EndMenu, Menu, StartMenu, PauseMenu
+from engine.menu import EndMenu, Menu, SettingsMenu, StartMenu, PauseMenu
 from engine.ui import UI
 
 
@@ -41,6 +41,9 @@ class Game:
         self.start_menu = StartMenu(self)
         self.paused_menu = PauseMenu(self)
         self.end_menu = EndMenu(self)
+        self.settings_menu = SettingsMenu(self)
+
+        self.previous_menu: Menu | None = None
         self.current_menu: Menu | None = self.start_menu
 
         self.is_paused = False
@@ -133,10 +136,27 @@ class Game:
         pygame.quit()
         sys.exit()
 
+    def show_settings_menu(self) -> None:
+        self.previous_menu = self.current_menu
+        self.current_menu = self.settings_menu
+
+    def show_start_menu(self) -> None:
+        self.current_menu = self.start_menu
+
+    def show_previous_menu(self) -> None:
+        self.current_menu = self.previous_menu
+
     def display_ui(self) -> None:
         self.ui.display_score(self.screen, self.score)
         self.ui.display_level(self.screen, self.current_level)
         self.ui.display_health(self.screen, self.pacman.health)
+
+    def resize_screen(self, width: int, height: int) -> None:
+        self.screen = pygame.display.set_mode((width, height))
+
+    def resize_font(self, size: int) -> None:
+        self.font = pygame.font.SysFont("Arial", size)
+        self.ui = UI(self.font, self.settings)
 
     def load_level(self) -> None:
         filename = f"assets/levels/{self.current_level}.txt"

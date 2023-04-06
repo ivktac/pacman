@@ -11,7 +11,7 @@ height = 800
 background = "black"
 text = "white"
 selected = "yellow"
-end = "red"
+title = "blue"
 
 [font]
-size = 24
+size = 36
