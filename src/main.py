@@ -1,5 +1,5 @@
-from game import Game
-from settings import Settings
+from engine.game import Game
+from engine.settings import Settings
 
 
 def main() -> None:

@@ -77,3 +77,23 @@ class PauseMenu(Menu):
             ("Вийти", game.quit),
         ]
         super().__init__(options, game.font, game.settings["colors"])
+
+
+class EndMenu(Menu):
+    def __init__(self, game: "Game") -> None:
+        options = [
+            ("Перезапустити", game.restart),
+            ("Вийти", game.quit),
+        ]
+        super().__init__(options, game.font, game.settings["colors"])
+
+        self.game_end_text = "Гра завершена!"
+        self.game_end_surface = self.font.render(self.game_end_text, True, self.colors["text"])
+        self.game_end_rect = self.game_end_surface.get_rect()
+
+    def draw(self, screen: pygame.Surface) -> None:
+        width, height = screen.get_size()
+
+        self.game_end_rect.center = width // 2, height // 4
+        screen.blit(self.game_end_surface, self.game_end_rect)
+        return super().draw(screen)

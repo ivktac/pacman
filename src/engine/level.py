@@ -39,6 +39,9 @@ class Level:
         filename = os.path.join(
             self.settings["levels"]["path"], f"{level_number}.txt"
         )
+        if not os.path.exists(filename):
+            raise FileNotFoundError(f"Level file {filename} not found")
+
         with open(filename, "r") as file:
             lines = file.readlines()
 

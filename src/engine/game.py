@@ -2,11 +2,10 @@ import sys
 import pygame
 
 from entities.pacman import Pacman
-from level import Level
-from settings import ISettings
-
-from menu import StartMenu, PauseMenu
-from ui import UI
+from engine.level import Level
+from engine.settings import ISettings
+from engine.menu import EndMenu, Menu, StartMenu, PauseMenu
+from engine.ui import UI
 
 
 class Game:
@@ -33,16 +32,18 @@ class Game:
 
         self.start_menu = StartMenu(self)
         self.paused_menu = PauseMenu(self)
-        self.current_menu = self.start_menu
-        self.is_paused = False
+        self.end_menu = EndMenu(self)
+        self.current_menu: Menu = self.start_menu
 
+        self.is_paused = False
+        self.is_running = True
 
     def run(self) -> None:
         """
         Запускає гру.
         """
 
-        while True:
+        while self.is_running:
             self.handle_events()
             self.update()
             self.draw()
@@ -58,13 +59,10 @@ class Game:
                 case pygame.QUIT:
                     self.quit()
                 case pygame.KEYDOWN:
-                    
                     if event.key == pygame.K_ESCAPE:
                         self.toggle_pause()
                     if self.current_menu:
                         self.current_menu.handle_keydown(event.key)
-                    elif self.is_paused:
-                        self.paused_menu.handle_keydown(event.key)
                     else:
                         self.pacman.handle_keydown(event.key)
 
@@ -76,9 +74,7 @@ class Game:
         """
 
         if self.current_menu:
-            self.start_menu.update()
-        elif self.is_paused:
-            self.paused_menu.update()
+            self.current_menu.update()
         else:
             if self.pacman.is_dead:
                 self.restart()
@@ -103,9 +99,7 @@ class Game:
         self.clear_screen()
 
         if self.current_menu:
-            self.start_menu.draw(self.screen)
-        elif self.is_paused:
-            self.paused_menu.draw(self.screen)
+            self.current_menu.draw(self.screen)
         else:
             self.level.draw(self.screen)
             self.display_ui()
@@ -132,6 +126,7 @@ class Game:
         """
 
         self.is_paused = True
+        self.current_menu = self.paused_menu
 
     def toggle_pause(self) -> None:
         if self.is_paused:
@@ -141,12 +136,14 @@ class Game:
 
     def resume(self) -> None:
         self.is_paused = False
+        self.current_menu = None
 
     def restart(self) -> None:
         """
         Перезапускає гру.
         """
 
+        self.current_menu = None
         self.is_paused = False
         self.level.restart()
         self.pacman.direction = pygame.math.Vector2(0, 0)
@@ -169,17 +166,12 @@ class Game:
         self.ui.display_score(self.screen, self.score)
         self.ui.display_level(self.screen, self.current_level)
 
-    def show_menu(self) -> None:
-        """
-        Відображає меню гри з такими опціями:
-            - `Нова гра` - починає гру з початку
-            - `Вийти` - виходить з гри
-        """
-        pass
-
     def load_level(self) -> None:
         """
         Завантажує дані рівня та створює відповідні об’єкти.
         """
 
-        self.level.load(self.current_level)
+        try:
+            self.level.load(self.current_level)
+        except FileNotFoundError:
+            self.current_menu = self.end_menu

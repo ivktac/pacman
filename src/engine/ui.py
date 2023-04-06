@@ -1,5 +1,6 @@
 import pygame
-from settings import ISettings
+
+from engine.settings import ISettings
 
 
 class UI:
