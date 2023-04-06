@@ -83,7 +83,7 @@ class Level:
 
     def next_level(self) -> None:
         """
-        Переходить до наступного рівня.
+        Перейти до наступного рівня.
         """
 
         self.current_level += 1
