@@ -88,7 +88,9 @@ class EndMenu(Menu):
         super().__init__(options, game.font, game.settings["colors"])
 
         self.game_end_text = "Гра завершена!"
-        self.game_end_surface = self.font.render(self.game_end_text, True, self.colors["text"])
+        self.game_end_surface = self.font.render(
+            self.game_end_text, True, self.colors["text"]
+        )
         self.game_end_rect = self.game_end_surface.get_rect()
 
     def draw(self, screen: pygame.Surface) -> None:
