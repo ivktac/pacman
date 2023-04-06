@@ -47,16 +47,15 @@ class Level:
             for x, tile in enumerate(line):
                 match tile:
                     case "=":
-                        wall = Wall(self, x, y)
-                        self.walls.add(wall)
+                        self.walls.add(Wall(self, x, y))
                     case "P":
                         self.game.pacman.set_position(x * 40, y * 40)
                     case "*":
-                        food = Food(self, x, y)
-                        self.foods.add(food)
+                        self.foods.add(Food(self, x, y))
+                    case "C":
+                        self.foods.add(Food(self, x, y, "cherry"))
                     case "G":
-                        ghost = Ghost(self, x, y)
-                        self.ghosts.add(ghost)
+                        self.ghosts.add(Ghost(self, x, y))
 
     def draw(self, screen: pygame.Surface) -> None:
         """
