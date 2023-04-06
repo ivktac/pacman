@@ -8,6 +8,9 @@ class UI:
         self.font = font
         self.settings = settings
 
+        self.heart_image = pygame.image.load("assets/images/heart.png")
+        self.heart_image = pygame.transform.scale(self.heart_image, (64, 64))
+
     def display_score(self, screen: pygame.Surface, score: int) -> None:
         """
         Відображає поточний рахунок гравця.
@@ -26,10 +29,8 @@ class UI:
         level_text = self.font.render(
             f"Level: {level}", True, self.settings["colors"]["text"]
         )
-        screen.blit(level_text, [0, 0])
+        screen.blit(level_text, [0, 60])
 
     def display_health(self, screen: pygame.Surface, health: int) -> None:
-        health_text = self.font.render(
-            f"Health: {health}", True, self.settings["colors"]["text"]
-        )
-        screen.blit(health_text, [0, 60])
+        for i in range(health):
+            screen.blit(self.heart_image, [i * 32, -10])

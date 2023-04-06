@@ -1,8 +1,11 @@
+[game]
+title = "Pacman"
+debug = false
+fps = 60
+
 [screen]
 width = 800
 height = 800
-fps = 60
-title = "Pacman"
 
 [colors]
 background = "black"

@@ -11,7 +11,7 @@ from engine.ui import UI
 class Game:
     def __init__(self, settings: ISettings) -> None:
         pygame.init()
-        pygame.display.set_caption(settings["screen"]["title"])
+        pygame.display.set_caption(settings["game"]["title"])
 
         self.settings = settings
         self.screen = pygame.display.set_mode(
@@ -19,6 +19,7 @@ class Game:
         )
 
         self.clock = pygame.time.Clock()
+        self.fps = self.settings["game"]["fps"]
 
         self.font = pygame.font.SysFont("Arial", self.settings["font"]["size"])
         self.ui = UI(self.font, self.settings)
@@ -38,6 +39,8 @@ class Game:
         self.is_paused = False
         self.is_running = True
 
+        self.is_debug = self.settings["game"]["debug"]
+
     def run(self) -> None:
         """
         Запускає гру.
@@ -47,7 +50,7 @@ class Game:
             self.handle_events()
             self.update()
             self.draw()
-            self.clock.tick(self.settings["screen"]["fps"])
+            self.clock.tick(self.fps)
 
     def handle_events(self) -> None:
         """
@@ -59,6 +62,8 @@ class Game:
                 case pygame.QUIT:
                     self.quit()
                 case pygame.KEYDOWN:
+                    if self.is_debug:
+                        self.debug_handle_keydown(event.key)
                     if event.key == pygame.K_ESCAPE:
                         self.toggle_pause()
                     if self.current_menu:
@@ -85,7 +90,6 @@ class Game:
             if self.level.is_completed():
                 self.current_level += 1
                 self.load_level()
-                self.pacman.direction = pygame.math.Vector2(0, 0)
                 return
 
             self.level.update()
@@ -147,7 +151,6 @@ class Game:
         self.current_menu = None
         self.is_paused = False
         self.level.restart()
-        self.pacman.direction = pygame.math.Vector2(0, 0)
         self.score = 0
         self.current_level = 1
         self.load_level()
@@ -177,3 +180,14 @@ class Game:
             self.level.load(self.current_level)
         except FileNotFoundError:
             self.current_menu = self.end_menu
+
+    def debug_handle_keydown(self, key: int) -> None:
+        match key:
+            case pygame.K_F1:
+                self.restart()
+            case pygame.K_F2:
+                self.current_level += 1
+                self.load_level()
+            case pygame.K_F3:
+                self.current_level -= 1
+                self.load_level()

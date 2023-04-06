@@ -59,6 +59,7 @@ class Level:
                     case "G":
                         self.ghosts.add(Ghost(self, x, y))
 
+
     def draw(self, screen: pygame.Surface) -> None:
         """
         Малює елементи гри на екрані, викликавши метод малювання об’єкта Level.
@@ -85,6 +86,8 @@ class Level:
         self.walls.empty()
         self.foods.empty()
         self.ghosts.empty()
+
+        self.game.pacman.respawn()
 
     def is_completed(self) -> bool:
         """

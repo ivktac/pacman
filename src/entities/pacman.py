@@ -128,6 +128,7 @@ class Pacman(MovableEntity):
         """
 
         self.rect.topleft = [x, y]
+        self.direction = pygame.math.Vector2(0, 0)
 
     def check_eaten_food(self):
         """
