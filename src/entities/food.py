@@ -1,8 +1,5 @@
 import random
 from typing import TYPE_CHECKING
-
-import pygame
-
 from entities.entity import Entity
 
 if TYPE_CHECKING:
@@ -11,21 +8,12 @@ if TYPE_CHECKING:
 
 class Food(Entity):
     def __init__(self, level: "Level", x: int, y: int) -> None:
-        super().__init__(level)
+        size = level.settings["food"]["size"]
+        color = level.settings["colors"]["food"]
 
-        self.size = self.level.settings["food"]["size"]
-        wall_size = self.level.settings["wall"]["size"]
+        super().__init__(level, size=size, color=color)
 
-        self.color = self.level.settings["colors"]["food"]
-
-        self.image = pygame.Surface(
-            [self.size, self.size], pygame.SRCALPHA, 32
-        ).convert_alpha()
-
-        pygame.draw.circle(
-            self.image, self.color, (self.size // 2, self.size // 2), self.size // 2
-        )
-
+        wall_size = level.settings["wall"]["size"]
         self.rect = self.image.get_rect(
             topleft=[x * wall_size + self.size, y * wall_size + self.size]
         )

@@ -21,10 +21,29 @@ class Entity(IEntity, pygame.sprite.Sprite):
     image: pygame.Surface
     rect: pygame.Rect
 
-    def __init__(self, level: "Level") -> None:
+    def __init__(
+        self,
+        level: "Level",
+        size: int | None = None,
+        image_path: str | None = None,
+        color: str | None = None,
+    ) -> None:
         super().__init__()
 
         self.level = level
+
+        if size is not None:
+            self.size = size
+            if image_path is not None:
+                self.image = pygame.image.load(image_path).convert_alpha()
+                self.image = pygame.transform.scale(self.image, (self.size, self.size))
+            elif color is not None:
+                self.image = pygame.Surface(
+                    [self.size, self.size], pygame.SRCALPHA, 32
+                ).convert_alpha()
+                pygame.draw.circle(
+                    self.image, color, (self.size // 2, self.size // 2), self.size // 2
+                )
 
     def draw(self, screen: pygame.Surface) -> None:
         """
@@ -38,10 +57,9 @@ class Entity(IEntity, pygame.sprite.Sprite):
 
 
 class MovableEntity(Entity):
-    def __init__(self, level: "Level", size: int, speed: int) -> None:
-        super().__init__(level)
+    def __init__(self, level: "Level", size: int, speed: int, image_path: str) -> None:
+        super().__init__(level, size=size, image_path=image_path)
 
-        self.size = size
         self.speed = speed
         self.direction = pygame.math.Vector2(0, 0)
 

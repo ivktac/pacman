@@ -13,13 +13,14 @@ class Pacman(MovableEntity):
     def __init__(self, level: "Level") -> None:
         size = level.settings["pacman"]["size"]
         speed = level.settings["pacman"]["speed"]
+        image_path = level.settings["pacman"]["image"]
+        walk_path = level.settings["pacman"]["walk"]
 
-        super().__init__(level, size, speed)
 
-        image_path = self.level.settings["pacman"]["image"]
+        super().__init__(level, size=size, speed=speed, image_path=image_path)
+
         self.image_idle = pygame.image.load(image_path).convert_alpha()
 
-        walk_path = self.level.settings["pacman"]["walk"]
         walk_image = pygame.image.load(walk_path).convert_alpha()
         self.walk_frames = self.split_walk_frames(walk_image, [self.size, self.size], 3)
 
