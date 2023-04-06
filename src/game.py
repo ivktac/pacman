@@ -7,25 +7,37 @@ from entities.pacman import Pacman
 from level import Level
 from settings import ISettings
 
+from menu import StartMenu, PauseMenu
+from ui import UI
+
 
 class Game:
     def __init__(self, settings: ISettings) -> None:
         pygame.init()
+        pygame.display.set_caption(settings["screen"]["title"])
 
         self.settings = settings
         self.screen = pygame.display.set_mode(
             [self.settings["screen"]["width"], self.settings["screen"]["height"]]
         )
+
         self.clock = pygame.time.Clock()
+
         self.font = pygame.font.SysFont("Arial", self.settings["font"]["size"])
+        self.ui = UI(self.font, self.settings)
 
         self.score = 0
 
         self.level = Level(self)
-        self.pacman = Pacman(self.level)
-        self.control_mapping = self.create_control_mapping()
+        self.current_level = 1
 
-        self.load_level()
+        self.pacman = Pacman(self.level)
+
+        self.start_menu = StartMenu(self)
+        self.paused_menu = PauseMenu(self)
+        self.current_menu = self.start_menu
+        self.is_paused = False
+
 
     def run(self) -> None:
         """
@@ -46,36 +58,17 @@ class Game:
         for event in pygame.event.get():
             match event.type:
                 case pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
+                    self.quit()
                 case pygame.KEYDOWN:
-                    self.process_keydown_event(event.key)
-
-    def process_keydown_event(self, key: int) -> None:
-        action = self.control_mapping.get(key)
-        if action is not None:
-            action()
-
-    def create_control_mapping(self) -> dict[int, callable]:
-        """
-        Створює словник, що містить відповідність між клавішами та діями.
-        """
-
-        controls = self.settings["controls"]
-        control_mapping = {
-            pygame.key.key_code(controls[direction]): partial(
-                self.pacman.change_direction, dx, dy
-            )
-            for direction, (dx, dy) in {
-                "up": (0, -1),
-                "down": (0, 1),
-                "left": (-1, 0),
-                "right": (1, 0),
-            }.items()
-        }
-        control_mapping[pygame.key.key_code(controls["pause"])] = self.pause_game
-
-        return control_mapping
+                    
+                    if event.key == pygame.K_ESCAPE:
+                        self.toggle_pause()
+                    if self.current_menu:
+                        self.current_menu.handle_keydown(event.key)
+                    elif self.is_paused:
+                        self.paused_menu.handle_keydown(event.key)
+                    else:
+                        self.pacman.handle_keydown(event.key)
 
     def update(self) -> None:
         """
@@ -84,12 +77,23 @@ class Game:
         Цей метод відповідає за оновлення позицій і станів усіх ігрових об’єктів.
         """
 
-        if self.pacman.is_dead:
-            self.restart()
-            self.pacman.respawn()
-            return
+        if self.current_menu:
+            self.start_menu.update()
+        elif self.is_paused:
+            self.paused_menu.update()
+        else:
+            if self.pacman.is_dead:
+                self.restart()
+                self.pacman.respawn()
+                return
 
-        self.level.update()
+            if self.level.is_completed():
+                self.current_level += 1
+                self.load_level()
+                self.pacman.direction = pygame.math.Vector2(0, 0)
+                return
+
+            self.level.update()
 
     def draw(self) -> None:
         """
@@ -99,8 +103,15 @@ class Game:
         """
 
         self.clear_screen()
-        self.level.draw(self.screen)
-        self.display_score()
+
+        if self.current_menu:
+            self.start_menu.draw(self.screen)
+        elif self.is_paused:
+            self.paused_menu.draw(self.screen)
+        else:
+            self.level.draw(self.screen)
+            self.display_ui()
+
         pygame.display.flip()
 
     def clear_screen(self) -> None:
@@ -110,48 +121,67 @@ class Game:
 
         self.screen.fill(self.settings["colors"]["background"])
 
-    def restart(self) -> None:
-        """
-        Перезапускає гру.
-        """
+    def start(self) -> None:
+        self.current_menu = None
+        self.load_level()
 
-        self.score = 0
-        self.level.current_level = 1
-        self.level.reload()
-
-    def display_score(self) -> None:
-        """
-        Відображає поточний рахунок гравця.
-        """
-
-        score_text = self.font.render(
-            f"Score: {self.score}", True, self.settings["colors"]["text"]
-        )
-        self.screen.blit(score_text, score_text.get_rect().move(10, 10))
-
-    def show_menu(self) -> None:
-        """
-        Відображає меню гри з такими опціями:
-            - `Нова гра` - починає гру з початку
-            - `Налаштування` - відкриває меню налаштувань
-            - `Вийти` - виходить з гри
-        """
-        pass
-
-    def pause_game(self) -> None:
+    def pause(self) -> None:
         """
         Зупиняє гру та показує меню з такими опціями:
             - `Продовжити` - продовжує гру
             - `Перезапустити` - починає гру з початку
             - `Вийти` - виходить з гри
         """
+
+        self.is_paused = True
+
+    def toggle_pause(self) -> None:
+        if self.is_paused:
+            self.resume()
+        else:
+            self.pause()
+
+    def resume(self) -> None:
+        self.is_paused = False
+
+    def restart(self) -> None:
+        """
+        Перезапускає гру.
+        """
+
+        self.is_paused = False
+        self.level.restart()
+        self.pacman.direction = pygame.math.Vector2(0, 0)
+        self.score = 0
+        self.current_level = 1
+        self.load_level()
+
+    def quit(self) -> None:
+        pygame.quit()
+        sys.exit()
+
+    def display_ui(self) -> None:
+        """
+        Відображає інтерфейс користувача, такий як:
+            - рахунок
+            - рівень
+            - життя
+        """
+
+        self.ui.display_score(self.screen, self.score)
+        self.ui.display_level(self.screen, self.current_level)
+
+    def show_menu(self) -> None:
+        """
+        Відображає меню гри з такими опціями:
+            - `Нова гра` - починає гру з початку
+            - `Вийти` - виходить з гри
+        """
         pass
 
-    def load_level(self, level_number=None) -> None:
+    def load_level(self) -> None:
         """
         Завантажує дані рівня та створює відповідні об’єкти.
         """
 
-        if level_number is None:
-            level_number = self.level.current_level
-        self.level.load_level(level_number)
+        self.level.load(self.current_level)

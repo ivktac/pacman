@@ -16,18 +16,29 @@ class Level:
         self.game = game
         self.settings = game.settings
 
-        self.current_level = 1
-
         self.walls = pygame.sprite.Group()
         self.foods = pygame.sprite.Group()
         self.ghosts = pygame.sprite.Group()
 
-    def load_level(self, level_number: int) -> None:
+    def reset(self) -> None:
+        """
+        Скидає стан рівня до початкового.
+        """
+
+        self.walls.empty()
+        self.foods.empty()
+        self.ghosts.empty()
+
+    def load(self, level_number: int) -> None:
         """
         Завантажує дані рівня та створює відповідні об’єкти.
         """
 
-        filename = os.path.join(self.settings["levels"]["path"], f"{level_number}.txt")
+        self.reset()
+
+        filename = os.path.join(
+            self.settings["levels"]["path"], f"{level_number}.txt"
+        )
         with open(filename, "r") as file:
             lines = file.readlines()
 
@@ -47,7 +58,6 @@ class Level:
                         ghost = Ghost(self, x, y)
                         self.ghosts.add(ghost)
 
-
     def draw(self, screen: pygame.Surface) -> None:
         """
         Малює елементи гри на екрані, викликавши метод малювання об’єкта Level.
@@ -62,15 +72,11 @@ class Level:
         """
         Оновлює стан рівня, як-от положення та взаємодію усіх об’єктів на рівні.
         """
-        
-        if len(self.foods) == 0:
-            self.next_level()
-            return
 
         self.game.pacman.update()
         self.ghosts.update()
 
-    def reload(self) -> None:
+    def restart(self) -> None:
         """
         Перезавантажує рівень.
         """
@@ -79,14 +85,10 @@ class Level:
         self.foods.empty()
         self.ghosts.empty()
 
-        self.load_level(self.current_level)
 
-    def next_level(self) -> None:
+    def is_completed(self) -> bool:
         """
-        Перейти до наступного рівня.
+        Повертає True, якщо рівень завершено, інакше False.
         """
 
-        self.current_level += 1
-        self.reload()
-
-        self.game.pacman.reset()
+        return len(self.foods) == 0

@@ -139,3 +139,18 @@ class Pacman(MovableEntity):
 
         self.image = self.image_idle
         self.direction = pygame.math.Vector2(0, 0)
+
+    def handle_keydown(self, key: int) -> None:
+        """
+        Обробляє натискання клавіш.
+        """
+
+        match key:
+            case pygame.K_UP | pygame.K_w:
+                self.change_direction(0, -1)
+            case pygame.K_DOWN | pygame.K_s:
+                self.change_direction(0, 1)
+            case pygame.K_LEFT | pygame.K_a:
+                self.change_direction(-1, 0)
+            case pygame.K_RIGHT | pygame.K_d:
+                self.change_direction(1, 0)

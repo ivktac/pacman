@@ -2,21 +2,16 @@
 width = 800
 height = 800
 fps = 60
+title = "Pacman"
 
 [colors]
 background = "black"
 food = "white"
 text = "white"
+selected = "red"
 
 [font]
-size = 32
-
-[controls]
-up = "w"
-down = "s"
-left = "a"
-right = "d"
-pause = "escape"
+size = 24
 
 [pacman]
 size = 32
