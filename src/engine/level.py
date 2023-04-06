@@ -54,6 +54,8 @@ class Level:
                         self.foods.add(Food(self, x, y))
                     case "C":
                         self.foods.add(Food(self, x, y, "cherry"))
+                    case "S":
+                        self.foods.add(Food(self, x, y, "blueberry"))
                     case "G":
                         self.ghosts.add(Ghost(self, x, y))
 

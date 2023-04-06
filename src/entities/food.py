@@ -17,17 +17,17 @@ class Food(Entity):
             case "cherry":
                 image_path = "assets/images/cherry.png"
                 self.points = 100
-            case "strawberry":
-                image_path = "assets/images/strawberry.png"
+            case "blueberry":
+                image_path = "assets/images/blueberry.png"
                 self.points = 300
             case _:
                 pass
 
         if image_path is not None:
-            super().__init__(level, size=16, image_path=image_path)
+            super().__init__(level, size=32, image_path=image_path)
+            position = [x * 40 + 4, y * 40 + 4]
         else:
             super().__init__(level, size=16, color="yellow")
+            position = [x * 40 + self.size, y * 40 + self.size]
 
-        self.rect = self.image.get_rect(
-            topleft=[x * 40 + self.size, y * 40 + self.size]
-        )
+        self.rect = self.image.get_rect(topleft=position)

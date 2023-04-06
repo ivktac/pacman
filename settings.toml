@@ -6,39 +6,8 @@ title = "Pacman"
 
 [colors]
 background = "black"
-point = "white"
 text = "white"
-selected = "red"
+selected = "yellow"
 
 [font]
 size = 24
-
-# [pacman]
-# size = 32
-# speed = 4
-# image = "assets/images/pacman.png"
-# walk = "assets/images/pacman_walk.png"
-
-# [ghost]
-# image = "assets/images/ghost.png"
-# speed = 2
-# size = 32
-
-# [wall]
-# size = 40
-# image = "assets/images/wall.png"
-
-# [levels]
-# path = "assets/levels/"
-
-# [point]
-# size = 10
-
-# [food]
-# size = 32
-
-# [[food.cherry]]
-# image = "assets/images/cherry.png"
-
-# [[food.strawberry]]
-# image = "assets/images/strawberry.png"

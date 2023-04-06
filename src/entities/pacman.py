@@ -145,7 +145,7 @@ class Pacman(MovableEntity):
         match food.type:
             case "cherry":
                 self.increase_health()
-            case "strawberry":
+            case "blueberry":
                 self.give_immunity()
             case _:
                 pass
@@ -206,12 +206,12 @@ class Pacman(MovableEntity):
         else:
             self.visible = True
 
-    def draw(self, surface: pygame.Surface) -> None:
+    def draw(self, screen: pygame.Surface) -> None:
         """
         Малює Pacman на поверхні.
         """
 
         if self.visible:
-            self.level.game.screen.blit(self.image, self.rect.topleft)
+            screen.blit(self.image, self.rect.topleft)
         else:
             pass
