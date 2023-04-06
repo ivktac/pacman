@@ -12,14 +12,9 @@ if TYPE_CHECKING:
 
 class Ghost(MovableEntity):
     def __init__(self, level: "Level", x, y) -> None:
-        size = level.settings["ghost"]["size"]
-        wall_size = level.settings["wall"]["size"]
-        speed = level.settings["ghost"]["speed"]
-        image_path = level.settings["ghost"]["image"]
+        super().__init__(level, size=32, speed=2, image_path="assets/images/ghost.png")
 
-        super().__init__(level, size=size, speed=speed, image_path=image_path)
-
-        self.rect = self.image.get_rect(topleft=[x * wall_size, y * wall_size])
+        self.rect = self.image.get_rect(topleft=[x * 40, y * 40])
 
     def move(self) -> None:
         """

@@ -6,30 +6,39 @@ title = "Pacman"
 
 [colors]
 background = "black"
-food = "white"
+point = "white"
 text = "white"
 selected = "red"
 
 [font]
 size = 24
 
-[pacman]
-size = 32
-speed = 4
-image = "assets/images/pacman.png"
-walk = "assets/images/pacman_walk.png"
+# [pacman]
+# size = 32
+# speed = 4
+# image = "assets/images/pacman.png"
+# walk = "assets/images/pacman_walk.png"
 
-[ghost]
-image = "assets/images/ghost.png"
-speed = 2
-size = 32
+# [ghost]
+# image = "assets/images/ghost.png"
+# speed = 2
+# size = 32
 
-[wall]
-size = 40
-image = "assets/images/wall.png"
+# [wall]
+# size = 40
+# image = "assets/images/wall.png"
 
-[levels]
-path = "assets/levels/"
+# [levels]
+# path = "assets/levels/"
 
-[food]
-size = 10
+# [point]
+# size = 10
+
+# [food]
+# size = 32
+
+# [[food.cherry]]
+# image = "assets/images/cherry.png"
+
+# [[food.strawberry]]
+# image = "assets/images/strawberry.png"

@@ -1,9 +1,8 @@
 import pygame
 
 from typing import TYPE_CHECKING
-
-from entities.entity import MovableEntity
 from entities.food import Food
+from entities.entity import MovableEntity
 
 if TYPE_CHECKING:
     from engine.level import Level
@@ -11,16 +10,11 @@ if TYPE_CHECKING:
 
 class Pacman(MovableEntity):
     def __init__(self, level: "Level") -> None:
-        size = level.settings["pacman"]["size"]
-        speed = level.settings["pacman"]["speed"]
-        image_path = level.settings["pacman"]["image"]
-        walk_path = level.settings["pacman"]["walk"]
+        super().__init__(level, size=32, speed=3, image_path="assets/images/pacman.png")
 
-        super().__init__(level, size=size, speed=speed, image_path=image_path)
+        self.image_idle = pygame.image.load("assets/images/pacman.png").convert_alpha()
 
-        self.image_idle = pygame.image.load(image_path).convert_alpha()
-
-        walk_image = pygame.image.load(walk_path).convert_alpha()
+        walk_image = pygame.image.load("assets/images/walk.png").convert_alpha()
         self.walk_frames = self.split_walk_frames(walk_image, [self.size, self.size], 3)
 
         self.image = self.image_idle
@@ -30,6 +24,18 @@ class Pacman(MovableEntity):
         self.current_frame = 0
 
         self.is_dead = False
+
+        self.max_health = 3
+        self.health = self.max_health
+
+        self.immunity_duration = 3000
+        self.immunity_end_time = 0
+
+        self.immunity = False
+
+        self.blink_duration = 200
+        self.blink_end_time = 0
+        self.visible = True
 
     def split_walk_frames(
         self, image: pygame.Surface, frame_size: tuple[int, int], num_frames: int
@@ -52,9 +58,14 @@ class Pacman(MovableEntity):
         Оновлює стан Pacman, як-от положення та взаємодію з іншими об’єктами.
         """
 
+        if self.health <= 0:
+            self.die()
+            return
+
         self.move()
         self.animate()
-        self.eat_food()
+        self.check_eaten_food()
+        self.check_immunity()
 
     def animate(self) -> None:
         """
@@ -72,10 +83,11 @@ class Pacman(MovableEntity):
 
         self.image = self.rotate()
 
+        self.blink()
+
     def rotate(self) -> None:
         angle = self.direction.angle_to(pygame.math.Vector2(1, 0))
         return pygame.transform.rotate(self.image, angle)
-
 
     def die(self) -> None:
         """
@@ -91,9 +103,17 @@ class Pacman(MovableEntity):
 
         collided_ghosts = pygame.sprite.spritecollide(self, self.level.ghosts, False)
         if collided_ghosts:
-            self.die()
+            self.take_damage()
 
         return super().check_collision(rect)
+
+    def check_immunity(self) -> None:
+        """
+        Перевіряє чи закінчився імунітет Pacman.
+        """
+
+        if self.immunity and pygame.time.get_ticks() > self.immunity_end_time:
+            self.immunity = False
 
     def change_direction(self, x: int, y: int):
         """
@@ -109,18 +129,26 @@ class Pacman(MovableEntity):
 
         self.rect.topleft = [x, y]
 
-    def eat_food(self):
+    def check_eaten_food(self):
         """
         Перевіряє чи не з’їв Pacman їжу.
         """
         collided_food = pygame.sprite.spritecollide(self, self.level.foods, True)
         for food in collided_food:
-            self.food_eaten(food)
+            self.eat_food(food)
 
-    def food_eaten(self, food: Food) -> None:
+    def eat_food(self, food: Food) -> None:
         """
         Збільшує кількість зібраної Pacman їжі.
         """
+
+        match food.type:
+            case "cherry":
+                self.increase_health()
+            case "strawberry":
+                self.give_immunity()
+            case _:
+                pass
 
         self.level.game.score += food.points
 
@@ -129,16 +157,7 @@ class Pacman(MovableEntity):
         Скидає стан Pacman до початкового.
         """
 
-        self.is_dead = False
-        self.reset()
-
-    def reset(self) -> None:
-        """
-        Скидає стан Pacman до початкового.
-        """
-
-        self.image = self.image_idle
-        self.direction = pygame.math.Vector2(0, 0)
+        self.__init__(self.level)
 
     def handle_keydown(self, key: int) -> None:
         """
@@ -154,3 +173,45 @@ class Pacman(MovableEntity):
                 self.change_direction(-1, 0)
             case pygame.K_RIGHT | pygame.K_d:
                 self.change_direction(1, 0)
+
+    def increase_health(self) -> None:
+        """
+        Збільшує кількість життів Pacman.
+        """
+
+        self.health = min(self.health + 1, self.max_health)
+
+    def give_immunity(self) -> None:
+        """
+        Дає Pacman невразливість на противників.
+        """
+
+        self.immunity = True
+        self.immunity_end_time = pygame.time.get_ticks() + self.immunity_duration
+
+    def take_damage(self) -> None:
+        """
+        Зменшує кількість життів Pacman.
+        """
+
+        if not self.immunity:
+            self.health -= 1
+            self.give_immunity()
+
+    def blink(self) -> None:
+        if self.immunity:
+            if pygame.time.get_ticks() > self.blink_end_time:
+                self.visible = not self.visible
+                self.blink_end_time = pygame.time.get_ticks() + self.blink_duration
+        else:
+            self.visible = True
+
+    def draw(self, surface: pygame.Surface) -> None:
+        """
+        Малює Pacman на поверхні.
+        """
+
+        if self.visible:
+            self.level.game.screen.blit(self.image, self.rect.topleft)
+        else:
+            pass

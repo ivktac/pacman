@@ -93,8 +93,7 @@ class MovableEntity(Entity):
         Переміщає сутність на іншу сторону екрану, якщо він виходить за межі.
         """
 
-        screen_width = self.level.settings["screen"]["width"]
-        screen_height = self.level.settings["screen"]["height"]
+        screen_width, screen_height = pygame.display.get_surface().get_size()
 
         if self.rect.left > screen_width - 10:
             self.rect.right = 10

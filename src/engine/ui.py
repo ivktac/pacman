@@ -27,3 +27,9 @@ class UI:
             f"Level: {level}", True, self.settings["colors"]["text"]
         )
         screen.blit(level_text, [0, 0])
+
+    def display_health(self, screen: pygame.Surface, health: int) -> None:
+        health_text = self.font.render(
+            f"Health: {health}", True, self.settings["colors"]["text"]
+        )
+        screen.blit(health_text, [0, 60])

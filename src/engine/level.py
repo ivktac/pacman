@@ -36,9 +36,7 @@ class Level:
 
         self.reset()
 
-        filename = os.path.join(
-            self.settings["levels"]["path"], f"{level_number}.txt"
-        )
+        filename = os.path.join("assets/levels/", f"{level_number}.txt")
         if not os.path.exists(filename):
             raise FileNotFoundError(f"Level file {filename} not found")
 
@@ -52,8 +50,7 @@ class Level:
                         wall = Wall(self, x, y)
                         self.walls.add(wall)
                     case "P":
-                        size = self.settings["wall"]["size"]
-                        self.game.pacman.set_position(x * size, y * size)
+                        self.game.pacman.set_position(x * 40, y * 40)
                     case "*":
                         food = Food(self, x, y)
                         self.foods.add(food)
@@ -87,7 +84,6 @@ class Level:
         self.walls.empty()
         self.foods.empty()
         self.ghosts.empty()
-
 
     def is_completed(self) -> bool:
         """

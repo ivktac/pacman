@@ -166,6 +166,7 @@ class Game:
 
         self.ui.display_score(self.screen, self.score)
         self.ui.display_level(self.screen, self.current_level)
+        self.ui.display_health(self.screen, self.pacman.health)
 
     def load_level(self) -> None:
         """
