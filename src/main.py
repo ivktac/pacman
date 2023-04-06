@@ -1,8 +1,10 @@
 from game import Game
+from settings import Settings
 
 
 def main() -> None:
-    game = Game()
+    settings = Settings()
+    game = Game(settings)
     game.run()
 
 

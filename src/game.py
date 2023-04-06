@@ -5,19 +5,19 @@ import pygame
 
 from entities.pacman import Pacman
 from level import Level
-from settings import Settings
+from settings import ISettings
 
 
 class Game:
-    def __init__(self) -> None:
+    def __init__(self, settings: ISettings) -> None:
         pygame.init()
 
-        self.settings = Settings()
+        self.settings = settings
         self.screen = pygame.display.set_mode(
-            [self.settings.screen["width"], self.settings.screen["height"]]
+            [self.settings["screen"]["width"], self.settings["screen"]["height"]]
         )
         self.clock = pygame.time.Clock()
-        self.font = pygame.font.SysFont("Arial", self.settings.font["size"])
+        self.font = pygame.font.SysFont("Arial", self.settings["font"]["size"])
 
         self.score = 0
 
@@ -36,7 +36,7 @@ class Game:
             self.handle_events()
             self.update()
             self.draw()
-            self.clock.tick(self.settings.screen["fps"])
+            self.clock.tick(self.settings["screen"]["fps"])
 
     def handle_events(self) -> None:
         """
@@ -61,7 +61,7 @@ class Game:
         Створює словник, що містить відповідність між клавішами та діями.
         """
 
-        controls = self.settings.controls
+        controls = self.settings["controls"]
         control_mapping = {
             pygame.key.key_code(controls[direction]): partial(
                 self.pacman.change_direction, dx, dy
@@ -103,7 +103,7 @@ class Game:
         Очищує екран коліром, визначеним в налаштуваннях перед кожним кадром.
         """
 
-        self.screen.fill(self.settings.colors["background"])
+        self.screen.fill(self.settings["colors"]["background"])
 
     def display_score(self) -> None:
         """
@@ -111,7 +111,7 @@ class Game:
         """
 
         score_text = self.font.render(
-            f"Score: {self.score}", True, self.settings.colors["text"]
+            f"Score: {self.score}", True, self.settings["colors"]["text"]
         )
         self.screen.blit(score_text, score_text.get_rect().move(10, 10))
 

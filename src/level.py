@@ -24,7 +24,7 @@ class Level:
         Завантажує дані рівня та створює відповідні об’єкти.
         """
 
-        filename = os.path.join(self.settings.levels["path"], f"{level_number}.txt")
+        filename = os.path.join(self.settings["levels"]["path"], f"{level_number}.txt")
         with open(filename, "r") as file:
             lines = file.readlines()
 
@@ -45,7 +45,7 @@ class Level:
         Поміщає гравця на початкову позицію.
         """
 
-        size = self.settings.wall["size"]
+        size = self.settings["wall"]["size"]
         self.game.pacman.set_position(x * size, y * size)
 
     def draw(self, screen: pygame.Surface) -> None:

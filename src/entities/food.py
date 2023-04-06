@@ -13,10 +13,10 @@ class Food(Entity):
     def __init__(self, level: "Level", x: int, y: int) -> None:
         super().__init__(level)
 
-        self.size = self.level.settings.food["size"]
-        wall_size = self.level.settings.wall["size"]
+        self.size = self.level.settings["food"]["size"]
+        wall_size = self.level.settings["wall"]["size"]
 
-        self.color = self.level.settings.colors["food"]
+        self.color = self.level.settings["colors"]["food"]
 
         self.image = pygame.Surface(
             [self.size, self.size], pygame.SRCALPHA, 32
