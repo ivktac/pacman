@@ -6,7 +6,7 @@ from entities.entity import MovableEntity
 from entities.food import Food
 
 if TYPE_CHECKING:
-    from level import Level
+    from engine.level import Level
 
 
 class Pacman(MovableEntity):

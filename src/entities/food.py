@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from entities.entity import Entity
 
 if TYPE_CHECKING:
-    from level import Level
+    from engine.level import Level
 
 
 class Food(Entity):

@@ -7,7 +7,7 @@ from entities.entity import MovableEntity
 
 
 if TYPE_CHECKING:
-    from level import Level
+    from engine.level import Level
 
 
 class Ghost(MovableEntity):
