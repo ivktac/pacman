@@ -7,6 +7,7 @@ if TYPE_CHECKING:
 
 class Wall(Entity):
     def __init__(self, level: "Level", x: int, y: int) -> None:
-        super().__init__(level, size=40, image_path="assets/images/wall.png")
+        entity = Entity.from_image(level, size=40, image_path="assets/images/wall.png")
 
+        self.__dict__.update(entity.__dict__)
         self.rect = self.image.get_rect(topleft=[x * self.size, y * self.size])

@@ -11,29 +11,36 @@ class Entity(pygame.sprite.Sprite):
     image: pygame.Surface
     rect: pygame.Rect
 
-    def __init__(
-        self,
-        level: "Level",
-        size: int | None = None,
-        image_path: str | None = None,
-        color: str | None = None,
-    ) -> None:
+    def __init__(self, level: "Level") -> None:
         super().__init__()
 
         self.level = level
 
-        if size is not None:
-            self.size = size
-            if image_path is not None:
-                self.image = pygame.image.load(image_path).convert_alpha()
-                self.image = pygame.transform.scale(self.image, (self.size, self.size))
-            elif color is not None:
-                self.image = pygame.Surface(
-                    [self.size, self.size], pygame.SRCALPHA, 32
-                ).convert_alpha()
+    @classmethod
+    def from_image(cls, level: "Level", size: int, image_path: str):
+        entity = cls(level)
+
+        entity.size = size
+        entity.image = pygame.image.load(image_path).convert_alpha()
+        entity.image = pygame.transform.scale(entity.image, (entity.size, entity.size))
+
+        return entity
+
+    @classmethod
+    def from_color(cls, level: "Level", size: int, color: str, shape: str = "circle"):
+        entity = cls(level)
+        entity.size = size
+        entity.image = pygame.Surface([size, size], pygame.SRCALPHA, 32).convert_alpha()
+
+        match shape:
+            case "circle":
                 pygame.draw.circle(
-                    self.image, color, (self.size // 2, self.size // 2), self.size // 2
+                    entity.image, color, (size // 2, size // 2), size // 2
                 )
+            case "square":
+                pygame.draw.rect(entity.image, color, (0, 0, size, size))
+
+        return entity
 
     def draw(self, screen: pygame.Surface) -> None:
         screen.blit(self.image, self.rect)
@@ -44,7 +51,8 @@ class Entity(pygame.sprite.Sprite):
 
 class MovableEntity(Entity):
     def __init__(self, level: "Level", size: int, speed: int, image_path: str) -> None:
-        super().__init__(level, size=size, image_path=image_path)
+        entity = Entity.from_image(level, size, image_path)
+        self.__dict__.update(entity.__dict__)
 
         self.speed = speed
         self.direction = pygame.math.Vector2(0, 0)

@@ -17,13 +17,18 @@ class Game:
 
         self.settings = settings
         self.screen = pygame.display.set_mode(
-            (self.settings["screen"]["width"], self.settings["screen"]["height"])  # type: ignore
+            (
+                self.settings["screen"]["width"],
+                self.settings["screen"]["height"],
+            )  # type: ignore
         )
 
         self.clock = pygame.time.Clock()
         self.fps = self.settings["game"]["fps"]  # type: ignore
 
-        self.font = pygame.font.SysFont("Arial", self.settings["font"]["size"])  # type: ignore
+        self.font = pygame.font.SysFont(
+            "Arial", self.settings["font"]["size"]
+        )  # type: ignore
         self.ui = UI(self.font, self.settings)
 
         self.score = 0

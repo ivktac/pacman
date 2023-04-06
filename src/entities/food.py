@@ -24,10 +24,11 @@ class Food(Entity):
                 ...
 
         if image_path is not None:
-            super().__init__(level, size=32, image_path=image_path)
-            position = [x * 40 + 4, y * 40 + 4]
+            entity = Entity.from_image(level, size=36, image_path=image_path)
+            position = [x * 40, y * 40]
         else:
-            super().__init__(level, size=16, color="yellow")
-            position = [x * 40 + self.size, y * 40 + self.size]
+            entity = Entity.from_color(level, size=16, color="yellow", shape="circle")
+            position = [x * 40 + entity.size, y * 40 + entity.size]
 
+        self.__dict__.update(entity.__dict__)
         self.rect = self.image.get_rect(topleft=position)
