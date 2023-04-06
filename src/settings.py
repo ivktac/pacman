@@ -7,6 +7,7 @@ class Settings:
 
         self.screen = self.config["screen"]
         self.colors = self.config["colors"]
+        self.font = self.config["font"]
         self.controls = self.config["controls"]
         
         self.wall = self.config["wall"]

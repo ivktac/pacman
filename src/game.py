@@ -17,12 +17,14 @@ class Game:
             [self.settings.screen["width"], self.settings.screen["height"]]
         )
         self.clock = pygame.time.Clock()
+        self.font = pygame.font.SysFont("Arial", self.settings.font["size"])
 
+        self.score = 0
 
         self.level = Level(self)
         self.pacman = Pacman(self.level)
         self.control_mapping = self.create_control_mapping()
-        
+
         self.load_level()
 
     def run(self) -> None:
@@ -62,7 +64,7 @@ class Game:
         controls = self.settings.controls
         control_mapping = {
             pygame.key.key_code(controls[direction]): partial(
-               self.pacman.change_direction, dx, dy
+                self.pacman.change_direction, dx, dy
             )
             for direction, (dx, dy) in {
                 "up": (0, -1),
@@ -93,6 +95,7 @@ class Game:
 
         self.clear_screen()
         self.level.draw(self.screen)
+        self.display_score()
         pygame.display.flip()
 
     def clear_screen(self) -> None:
@@ -101,6 +104,16 @@ class Game:
         """
 
         self.screen.fill(self.settings.colors["background"])
+
+    def display_score(self) -> None:
+        """
+        Відображає поточний рахунок гравця.
+        """
+
+        score_text = self.font.render(
+            f"Score: {self.score}", True, self.settings.colors["text"]
+        )
+        self.screen.blit(score_text, score_text.get_rect().move(10, 10))
 
     def show_menu(self) -> None:
         """

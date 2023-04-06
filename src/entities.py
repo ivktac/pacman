@@ -1,4 +1,5 @@
 import pygame
+import random
 
 from typing import TYPE_CHECKING
 
@@ -67,6 +68,7 @@ class Pacman(Entity):
 
         self.move()
         self.animate()
+        self.eat_food()
 
     def animate(self) -> None:
         """
@@ -141,6 +143,21 @@ class Pacman(Entity):
 
         self.rect = self.rect.move(x, y)
 
+    def eat_food(self):
+        """
+        Перевіряє чи не з’їв Pacman їжу.
+        """
+        collided_food = pygame.sprite.spritecollide(self, self.level.foods, True)
+        for food in collided_food:
+            self.food_eaten(food)
+
+    def food_eaten(self, food: "Food") -> None:
+        """
+        Збільшує кількість зібраної Pacman їжі.
+        """
+
+        self.level.game.score += food.points
+
     def increase_hearts(self, amount: int):
         """
         Збільшує кількість сердець Pacman на задану кількість.
@@ -186,6 +203,8 @@ class Food(Entity):
         self.rect = self.image.get_rect(
             topleft=[x * self.wall_size + self.size, y * self.wall_size + self.size]
         )
+
+        self.points = random.randint(1, 10)
 
 
 class Ghost(Entity):

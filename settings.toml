@@ -6,6 +6,10 @@ fps = 60
 [colors]
 background = "black"
 food = "white"
+text = "white"
+
+[font]
+size = 32
 
 [controls]
 up = "w"
