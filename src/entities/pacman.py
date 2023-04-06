@@ -41,7 +41,7 @@ class Pacman(MovableEntity):
         self, image: pygame.Surface, frame_size: tuple[int, int], num_frames: int
     ) -> list[pygame.Surface]:
         """
-        Розділяє спрайт зі зображенням ходьби на окремі кадри.
+        Розділити спрайт зі зображенням ходьби на окремі кадри.
         """
 
         frame_width, frame_height = frame_size
@@ -55,7 +55,7 @@ class Pacman(MovableEntity):
 
     def update(self) -> None:
         """
-        Оновлює стан Pacman, як-от положення та взаємодію з іншими об’єктами.
+        Оновити стан Pacman, як-от положення та взаємодію з іншими об’єктами.
         """
 
         if self.health <= 0:
@@ -64,12 +64,11 @@ class Pacman(MovableEntity):
 
         self.move()
         self.animate()
-        self.check_eaten_food()
         self.check_immunity()
 
     def animate(self) -> None:
         """
-        Оновлює зображення Pacman, як-от зміну кадру анімації.
+        Оновити зміну кадру анімації.
         """
 
         if self.direction.magnitude() == 0:
@@ -86,30 +85,38 @@ class Pacman(MovableEntity):
         self.blink()
 
     def rotate(self) -> None:
+        """
+        Повернути зображення Pacman відповідно до напрямку руху.
+        """
+
         angle = self.direction.angle_to(pygame.math.Vector2(1, 0))
         return pygame.transform.rotate(self.image, angle)
 
     def die(self) -> None:
         """
-        Переводить Pacman в стан смерті.
+        Перевести Pacman в стан смерті.
         """
 
         self.is_dead = True
 
     def check_collision(self, rect: pygame.Rect) -> None:
         """
-        Перевіряє чи не зіткнувся Pacman з іншими об’єктами.
+        Перевірити чи зіткнувся Pacman з іншими об’єктами.
         """
 
         collided_ghosts = pygame.sprite.spritecollide(self, self.level.ghosts, False)
         if collided_ghosts:
             self.take_damage()
 
+        collided_food = pygame.sprite.spritecollide(self, self.level.foods, True)
+        for food in collided_food:
+            self.eat_food(food)
+
         return super().check_collision(rect)
 
     def check_immunity(self) -> None:
         """
-        Перевіряє чи закінчився імунітет Pacman.
+        Перевірити чи закінчився імунітет Pacman.
         """
 
         if self.immunity and pygame.time.get_ticks() > self.immunity_end_time:
@@ -117,32 +124,23 @@ class Pacman(MovableEntity):
 
     def change_direction(self, x: int, y: int):
         """
-        Змінює напрямок руху Pacman.
+        Змінити напрямок руху Pacman.
         """
 
         self.direction = pygame.math.Vector2(x, y)
 
     def set_position(self, x: int, y: int):
         """
-        Задає положення Pacman.
+        Задати положення Pacman.
+
+        Примітка: метод обнуляє напрямок руху Pacman.
         """
 
         self.rect.topleft = [x, y]
         self.direction = pygame.math.Vector2(0, 0)
 
-    def check_eaten_food(self):
-        """
-        Перевіряє чи не з’їв Pacman їжу.
-        """
-        collided_food = pygame.sprite.spritecollide(self, self.level.foods, True)
-        for food in collided_food:
-            self.eat_food(food)
 
     def eat_food(self, food: Food) -> None:
-        """
-        Збільшує кількість зібраної Pacman їжі.
-        """
-
         match food.type:
             case "cherry":
                 self.increase_health()
@@ -155,14 +153,14 @@ class Pacman(MovableEntity):
 
     def respawn(self) -> None:
         """
-        Скидає стан Pacman до початкового.
+        Скинути стан Pacman до початкового.
         """
 
         self.__init__(self.level)
 
     def handle_keydown(self, key: int) -> None:
         """
-        Обробляє натискання клавіш.
+        Обробити натискання клавіш.
         """
 
         match key:
@@ -177,14 +175,14 @@ class Pacman(MovableEntity):
 
     def increase_health(self) -> None:
         """
-        Збільшує кількість життів Pacman.
+        Збільшити кількість життів Pacman.
         """
 
         self.health = min(self.health + 1, self.max_health)
 
     def give_immunity(self) -> None:
         """
-        Дає Pacman невразливість на противників.
+        Дати Pacman невразливість на противників.
         """
 
         self.immunity = True
@@ -192,7 +190,7 @@ class Pacman(MovableEntity):
 
     def take_damage(self) -> None:
         """
-        Зменшує кількість життів Pacman.
+        Зменшити кількість життів Pacman.
         """
 
         if not self.immunity:
@@ -200,6 +198,10 @@ class Pacman(MovableEntity):
             self.give_immunity()
 
     def blink(self) -> None:
+        """
+        Перемикнути видимість Pacman на мерехтіння.
+        """
+
         if self.immunity:
             if pygame.time.get_ticks() > self.blink_end_time:
                 self.visible = not self.visible
@@ -208,10 +210,6 @@ class Pacman(MovableEntity):
             self.visible = True
 
     def draw(self, screen: pygame.Surface) -> None:
-        """
-        Малює Pacman на поверхні.
-        """
-
         if self.visible:
             screen.blit(self.image, self.rect.topleft)
         else:

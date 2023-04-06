@@ -17,10 +17,6 @@ class Ghost(MovableEntity):
         self.rect = self.image.get_rect(topleft=[x * 40, y * 40])
 
     def move(self) -> None:
-        """
-        Переміщає привидів.
-        """
-
         if random.random() < 0.01:
             dx, dy = random.choice([(1, 0), (-1, 0), (0, 1), (0, -1)])
             self.direction = pygame.math.Vector2(dx, dy)

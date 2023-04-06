@@ -20,9 +20,9 @@ class Level:
         self.foods = pygame.sprite.Group()
         self.ghosts = pygame.sprite.Group()
 
-    def reset(self) -> None:
+    def clean(self) -> None:
         """
-        Скидає стан рівня до початкового.
+        Скинути стан рівня до початкового.
         """
 
         self.walls.empty()
@@ -31,10 +31,10 @@ class Level:
 
     def load(self, level_number: int) -> None:
         """
-        Завантажує дані рівня та створює відповідні об’єкти.
+        Завантажити дані рівня та створити відповідні об’єкти.
         """
 
-        self.reset()
+        self.clean()
 
         filename = os.path.join("assets/levels/", f"{level_number}.txt")
         if not os.path.exists(filename):
@@ -61,27 +61,16 @@ class Level:
 
 
     def draw(self, screen: pygame.Surface) -> None:
-        """
-        Малює елементи гри на екрані, викликавши метод малювання об’єкта Level.
-        """
-
         self.ghosts.draw(screen)
         self.game.pacman.draw(screen)
         self.walls.draw(screen)
         self.foods.draw(screen)
 
     def update(self) -> None:
-        """
-        Оновлює стан рівня, як-от положення та взаємодію усіх об’єктів на рівні.
-        """
-
         self.game.pacman.update()
         self.ghosts.update()
 
     def restart(self) -> None:
-        """
-        Перезавантажує рівень.
-        """
 
         self.walls.empty()
         self.foods.empty()
@@ -90,8 +79,4 @@ class Level:
         self.game.pacman.respawn()
 
     def is_completed(self) -> bool:
-        """
-        Повертає True, якщо рівень завершено, інакше False.
-        """
-
         return len(self.foods) == 0
