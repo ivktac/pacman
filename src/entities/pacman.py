@@ -15,7 +15,7 @@ class Pacman(MovableEntity):
         self.image_idle = pygame.image.load("assets/images/pacman.png").convert_alpha()
 
         walk_image = pygame.image.load("assets/images/walk.png").convert_alpha()
-        self.walk_frames = self.split_walk_frames(walk_image, [self.size, self.size], 3)
+        self.walk_frames = self.split_walk_frames(walk_image, (self.size, self.size), 3)
 
         self.image = self.image_idle
         self.rect = self.image.get_rect()
@@ -78,7 +78,7 @@ class Pacman(MovableEntity):
             self.current_frame = (self.current_frame + 1) % len(self.walk_frames)
         self.image = self.walk_frames[self.current_frame]
 
-    def rotate(self) -> None:
+    def rotate(self) -> pygame.Surface:
         angle = self.direction.angle_to(pygame.math.Vector2(1, 0))
         return pygame.transform.rotate(self.image, angle)
 
@@ -121,7 +121,7 @@ class Pacman(MovableEntity):
             self.health -= 1
             self.give_immunity()
 
-    def check_collision(self, rect: pygame.Rect) -> None:
+    def check_collision(self, rect: pygame.Rect) -> bool:
         collided_ghosts = pygame.sprite.spritecollide(self, self.level.ghosts, False)
         if collided_ghosts:
             self.take_damage()
@@ -140,7 +140,7 @@ class Pacman(MovableEntity):
         self.direction = pygame.math.Vector2(x, y)
 
     def set_position(self, x: int, y: int):
-        self.rect.topleft = [x, y]
+        self.rect.topleft = (x, y)
         self.direction = pygame.math.Vector2(0, 0)
 
     def handle_keydown(self, key: int) -> None:

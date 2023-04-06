@@ -1,23 +1,13 @@
 import pygame
 
-from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
+
 
 if TYPE_CHECKING:
     from engine.level import Level
 
 
-class IEntity(ABC):
-    @abstractmethod
-    def update(self) -> None:
-        ...
-
-    @abstractmethod
-    def draw(self, screen: pygame.Surface) -> None:
-        ...
-
-
-class Entity(IEntity, pygame.sprite.Sprite):
+class Entity(pygame.sprite.Sprite):
     image: pygame.Surface
     rect: pygame.Rect
 

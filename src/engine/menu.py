@@ -1,22 +1,16 @@
-from abc import ABC, abstractmethod
 import pygame
 
 from typing import TYPE_CHECKING
+
 
 if TYPE_CHECKING:
     from engine.game import Game
 
 
-class IMenu(ABC):
-    @abstractmethod
-    def draw(self, screen: pygame.Surface) -> None:
-        ...
-
-
-class Menu(IMenu):
+class Menu(pygame.sprite.Sprite):
     def __init__(
         self,
-        options: list[tuple[str, callable]],
+        options: list[tuple[str, callable]],  # type:ignore
         font: pygame.font.Font,
         colors: dict[str, str],
     ) -> None:
@@ -73,7 +67,7 @@ class StartMenu(Menu):
             ("Нова гра", game.start),
             ("Вийти", game.quit),
         ]
-        super().__init__(options, game.font, game.settings["colors"])
+        super().__init__(options, game.font, game.settings["colors"])  # type: ignore
 
 
 class PauseMenu(Menu):
@@ -83,7 +77,7 @@ class PauseMenu(Menu):
             ("Нова гра", game.restart),
             ("Вийти", game.quit),
         ]
-        super().__init__(options, game.font, game.settings["colors"])
+        super().__init__(options, game.font, game.settings["colors"])  # type: ignore
 
 
 class EndMenu(Menu):
@@ -92,11 +86,11 @@ class EndMenu(Menu):
             ("Перезапустити", game.restart),
             ("Вийти", game.quit),
         ]
-        super().__init__(options, game.font, game.settings["colors"])
+        super().__init__(options, game.font, game.settings["colors"])  # type: ignore
 
         self.game_end_text = "Гра завершена!"
         self.game_end_surface = self.font.render(
-            self.game_end_text, True, game.settings["colors"]["end"]
+            self.game_end_text, True, game.settings["colors"]["end"]  # type: ignore
         )
         self.game_end_rect = self.game_end_surface.get_rect()
 

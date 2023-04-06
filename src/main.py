@@ -1,12 +1,12 @@
 from engine.game import Game
-from engine.settings import JsonSettings
+from engine.settings import TomlSettings
 
 
 def main() -> None:
-    settings = JsonSettings()
+    settings = TomlSettings()
     game = Game(settings)
     game.run()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

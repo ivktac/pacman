@@ -12,17 +12,18 @@ from engine.ui import UI
 class Game:
     def __init__(self, settings: ISettings) -> None:
         pygame.init()
-        pygame.display.set_caption(settings["game"]["title"])
+
+        pygame.display.set_caption(settings["game"]["title"])  # type: ignore
 
         self.settings = settings
         self.screen = pygame.display.set_mode(
-            (self.settings["screen"]["width"], self.settings["screen"]["height"])
+            (self.settings["screen"]["width"], self.settings["screen"]["height"])  # type: ignore
         )
 
         self.clock = pygame.time.Clock()
-        self.fps = self.settings["game"]["fps"]
+        self.fps = self.settings["game"]["fps"]  # type: ignore
 
-        self.font = pygame.font.SysFont("Arial", self.settings["font"]["size"])
+        self.font = pygame.font.SysFont("Arial", self.settings["font"]["size"])  # type: ignore
         self.ui = UI(self.font, self.settings)
 
         self.score = 0
@@ -35,12 +36,12 @@ class Game:
         self.start_menu = StartMenu(self)
         self.paused_menu = PauseMenu(self)
         self.end_menu = EndMenu(self)
-        self.current_menu: Menu = self.start_menu
+        self.current_menu: Menu | None = self.start_menu
 
         self.is_paused = False
         self.is_running = True
 
-        self.is_debug = self.settings["game"]["debug"]
+        self.is_debug = self.settings["game"]["debug"]  # type: ignore
 
     def run(self) -> None:
         while self.is_running:
@@ -93,7 +94,7 @@ class Game:
         pygame.display.flip()
 
     def clear_screen(self) -> None:
-        self.screen.fill(self.settings["colors"]["background"])
+        self.screen.fill(self.settings["colors"]["background"])  # type: ignore
 
     def start(self) -> None:
         self.current_menu = None
@@ -119,7 +120,7 @@ class Game:
 
         self.current_menu = None
         self.is_paused = False
-        
+
         self.level.restart()
         self.load_level()
 
