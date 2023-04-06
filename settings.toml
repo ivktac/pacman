@@ -1,0 +1,14 @@
+[screen]
+width = 640
+height = 480
+fps = 60
+
+[colors]
+background = [0, 0, 0]
+wall = [255, 255, 255]
+
+[pacman]
+speed = 4
+
+[ghost]
+speed = 2
