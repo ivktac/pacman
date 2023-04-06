@@ -8,10 +8,11 @@ background = [0, 0, 0]
 wall = [255, 255, 255]
 
 [controls]
-up = "w"
-down = "s"
-left = "a"
-right = "d"
+up = "up"
+down = "down"
+left = "left"
+right = "right"
+pause = "escape"
 
 [pacman]
 size = 32
