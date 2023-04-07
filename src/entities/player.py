@@ -7,9 +7,7 @@ class Player(MovableEntity):
     def __init__(self, x: int, y: int, *groups) -> None:
         super().__init__(x, y, 32, 3, "assets/images/pacman.png", "player", *groups)
 
-        self.__image_idle = pygame.image.load(
-            "assets/images/pacman.png"
-        ).convert_alpha()
+        self.__image_idle = self.image
 
         walk_image = pygame.image.load("assets/images/walk.png").convert_alpha()
         self.__walk_frames = self.split_frames(walk_image, (self.size, self.size), 3)
@@ -151,12 +149,13 @@ class Player(MovableEntity):
         self.__score += food.points
 
     def respawn(self, x: int, y: int) -> None:
-        score = self.__score
+        dump_score = self.__score
 
         self.__init__(x, y)
 
-        self.__score = score
-        self.__set_position(x, y)
+        self.__score = dump_score
+
+        self.rect.topleft = (x, y)
 
     def increase_health(self) -> None:
         self.__health = min(self.__health + 1, self.__max_health)
@@ -185,10 +184,6 @@ class Player(MovableEntity):
     def check_immunity(self) -> None:
         if self.__immunity and pygame.time.get_ticks() > self.__immunity_end_time:
             self.__immunity = False
-
-    def __set_position(self, x: int, y: int):
-        self.rect.topleft = (x, y)
-        self.change_direction(0, 0)
 
     def handle_keydown(self, key: int) -> None:
         match key:

@@ -24,7 +24,6 @@ class Ghost(MovableEntity):
             self.change_direction(dx, dy)
 
         if not hasattr(group, "player"):
-            print("No player in group")
             return
 
         player = group.player

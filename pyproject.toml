@@ -1,12 +1,17 @@
 [tool.pdm]
 [tool.pdm.dev-dependencies]
-dev = ["black>=23.3.0"]
+dev = [
+    "black>=23.3.0",
+    "mypy>=1.2.0",
+]
 
 [project]
 name = "pacman"
 version = "0.1.0"
 description = "Гра Пакман"
 authors = [{ name = "Іван Ткачук", email = "tkachuk.ivan.v.chnu@edu.ua" }]
-dependencies = ["pygame>=2.3.0"]
+dependencies = [
+    "pygame>=2.3.0",
+]
 requires-python = ">=3.10"
 license = { text = "MIT" }

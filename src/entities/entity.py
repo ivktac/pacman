@@ -52,9 +52,6 @@ class Entity(pygame.sprite.Sprite):
     def __str__(self) -> str:
         return self.__tag
 
-    def move(self, _: pygame.sprite.Group) -> None:
-        ...
-
     def update(self, _: pygame.sprite.Group) -> None:
         ...
 
