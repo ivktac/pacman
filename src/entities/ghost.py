@@ -25,4 +25,33 @@ class Ghost(MovableEntity):
             dx, dy = random.choice([(1, 0), (-1, 0), (0, 1), (0, -1)])
             self.direction = pygame.math.Vector2(dx, dy)
 
+        if self.is_pacman_in_sight():
+            dx = self.level.game.pacman.rect.x - self.rect.x
+            dy = self.level.game.pacman.rect.y - self.rect.y
+
+            if abs(dx) > abs(dy):
+                self.direction = (
+                    pygame.math.Vector2(1, 0) if dx > 0 else pygame.math.Vector2(-1, 0)
+                )
+            else:
+                self.direction = (
+                    pygame.math.Vector2(0, 1) if dy > 0 else pygame.math.Vector2(0, -1)
+                )
+
         super().move()
+
+    def is_pacman_in_sight(self) -> None:
+        sight_distance = 200
+        sight_rect = self.rect.inflate(sight_distance, sight_distance)
+
+        if self.direction.x > 0:
+            sight_rect.x += self.rect.width
+        elif self.direction.x < 0:
+            sight_rect.x -= sight_distance
+
+        if self.direction.y > 0:
+            sight_rect.y += self.rect.height
+        elif self.direction.y < 0:
+            sight_rect.y -= sight_distance
+
+        return sight_rect.colliderect(self.level.game.pacman.rect)
