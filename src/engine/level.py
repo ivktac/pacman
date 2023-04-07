@@ -13,7 +13,6 @@ if TYPE_CHECKING:
 class Level:
     def __init__(self, game: "Game") -> None:
         self.game = game
-        self.settings = game.settings
 
         self.walls = pygame.sprite.Group()
         self.foods = pygame.sprite.Group()
