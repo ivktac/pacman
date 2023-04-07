@@ -33,7 +33,7 @@ class Level:
                     case "=":
                         self.walls.add(Wall(self, x, y))
                     case "P":
-                        self.game.pacman.set_position(x * 40, y * 40)
+                        self.game.pacman.set_position(x * 40 + 5, y * 40 + 5)
                     case "*":
                         self.foods.add(Food(self, x, y))
                     case "C":

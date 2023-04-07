@@ -15,7 +15,14 @@ class Pacman(MovableEntity):
         self.image_idle = pygame.image.load("assets/images/pacman.png").convert_alpha()
 
         walk_image = pygame.image.load("assets/images/walk.png").convert_alpha()
-        self.walk_frames = self.split_walk_frames(walk_image, (self.size, self.size), 3)
+        self.walk_frames = self.split_frames(walk_image, (self.size, self.size), 3)
+
+        explosion_image = pygame.image.load(
+            "assets/images/explosion.png"
+        ).convert_alpha()
+        self.explosion_frames = self.split_frames(
+            explosion_image, (self.size - 2, self.size), 10
+        )
 
         self.image = self.image_idle
         self.rect = self.image.get_rect()
@@ -23,7 +30,11 @@ class Pacman(MovableEntity):
         self.frame_counter = 0
         self.current_frame = 0
 
+        self.exploding = False
+        self.explosion_frame_delay = 3000 // len(self.explosion_frames)
+
         self.is_dead = False
+        self.death_time = 0
 
         self.max_health = 3
         self.health = self.max_health
@@ -38,7 +49,7 @@ class Pacman(MovableEntity):
         self.visible = True
 
     @staticmethod
-    def split_walk_frames(
+    def split_frames(
         image: pygame.Surface, frame_size: tuple[int, int], num_frames: int
     ) -> list[pygame.Surface]:
         frame_width, frame_height = frame_size
@@ -51,7 +62,7 @@ class Pacman(MovableEntity):
         return frames
 
     def draw(self, screen: pygame.Surface) -> None:
-        if self.visible:
+        if self.visible or self.exploding:
             screen.blit(self.image, self.rect.topleft)
 
     def update(self) -> None:
@@ -62,6 +73,9 @@ class Pacman(MovableEntity):
         self.animate()
 
     def animate(self) -> None:
+        if self.is_dead:
+            return self.animate_explosion()
+
         if self.direction.magnitude() == 0:
             self.image = self.image_idle
         else:
@@ -73,7 +87,7 @@ class Pacman(MovableEntity):
 
     def update_pacman_frame(self):
         self.frame_counter += 1
-        if self.frame_counter >= 10:
+        if self.frame_counter > 10:
             self.frame_counter = 0
             self.current_frame = (self.current_frame + 1) % len(self.walk_frames)
         self.image = self.walk_frames[self.current_frame]
@@ -92,8 +106,24 @@ class Pacman(MovableEntity):
         else:
             self.visible = True
 
+    def animate_explosion(self) -> None:
+        current_time = pygame.time.get_ticks()
+
+        elapsed_time = current_time - self.death_time
+
+        self.current_frame = elapsed_time // self.explosion_frame_delay
+        self.current_frame = min(self.current_frame, len(self.explosion_frames) - 1)
+
+        self.image = self.explosion_frames[self.current_frame]
+
+        if self.current_frame == len(self.explosion_frames) - 1:
+            self.set_position(-100, -100)
+
     def die(self) -> None:
         self.is_dead = True
+        self.exploding = True
+        self.explosion_current_frame = 0
+        self.death_time = pygame.time.get_ticks()
 
     def eat_food(self, food: Food) -> None:
         match food.type:

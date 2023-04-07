@@ -5,8 +5,9 @@ import pygame
 from entities.pacman import Pacman
 from engine.level import Level
 from engine.settings import ISettings
-from engine.menu import MenuLoader
-from engine.ui import UI
+from engine.ui.menu_loader import MenuLoader
+
+from engine.ui.ui import UI
 
 
 class Game:
@@ -70,10 +71,11 @@ class Game:
     def update(self) -> None:
         self.menu_loader.update()
 
-        if self.pacman.is_dead:
-            self.restart()
-            self.pacman.respawn()
-            self.menu_loader.show_menu("end")
+        if (
+            self.pacman.is_dead
+            and pygame.time.get_ticks() - self.pacman.death_time > 3500
+        ):
+            self.menu_loader.show_menu("game_over")
             return
 
         if self.level.is_completed():
