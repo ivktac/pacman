@@ -66,6 +66,9 @@ class Pacman(MovableEntity):
             screen.blit(self.image, self.rect.topleft)
 
     def update(self) -> None:
+        if self.is_dead:
+            return self.animate_explosion()
+
         if self.health <= 0:
             return self.die()
 
@@ -73,9 +76,6 @@ class Pacman(MovableEntity):
         self.animate()
 
     def animate(self) -> None:
-        if self.is_dead:
-            return self.animate_explosion()
-
         if self.direction.magnitude() == 0:
             self.image = self.image_idle
         else:
@@ -124,6 +124,8 @@ class Pacman(MovableEntity):
         self.exploding = True
         self.explosion_current_frame = 0
         self.death_time = pygame.time.get_ticks()
+
+        self.direction = pygame.math.Vector2(0, 0)
 
     def eat_food(self, food: Food) -> None:
         match food.type:
