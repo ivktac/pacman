@@ -45,7 +45,7 @@ class Level(pygame.sprite.Group):
                         self.add(Food(x, y, "food"))
                     case "C":
                         self.add(Food(x, y, "cherry"))
-                    case "S":
+                    case "B":
                         self.add(Food(x, y, "blueberry"))
                     case "G":
                         speed = round(self.__number * 0.25 + 2)
