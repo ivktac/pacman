@@ -1,88 +1,110 @@
 import pygame
 
-from typing import TYPE_CHECKING
-
-
-if TYPE_CHECKING:
-    from engine.level import Level
-
 
 class Entity(pygame.sprite.Sprite):
     image: pygame.Surface
     rect: pygame.Rect
 
-    def __init__(self, level: "Level") -> None:
-        super().__init__()
+    def __init__(self, x: int, y: int, size: int, tag: str, *groups) -> None:
+        super().__init__(*groups)
 
-        self.level = level
+        self.__x = x
+        self.__y = y
+        self.__size = size
+        self.__tag = tag
+
+    @property
+    def size(self) -> int:
+        return self.__size
 
     @classmethod
-    def from_image(cls, level: "Level", size: int, image_path: str):
-        entity = cls(level)
+    def from_image(cls, x: int, y: int, size: int, image_path: str, tag: str, *groups):
+        entity = cls(x, y, size, tag, *groups)
 
-        entity.size = size
         entity.image = pygame.image.load(image_path).convert_alpha()
-        entity.image = pygame.transform.scale(entity.image, (entity.size, entity.size))
+        entity.image = pygame.transform.scale(
+            entity.image, (entity.__size, entity.__size)
+        )
+        entity.rect = entity.image.get_rect(topleft=[entity.__x, entity.__y])
 
         return entity
 
     @classmethod
-    def from_color(cls, level: "Level", size: int, color: str, shape: str = "circle"):
-        entity = cls(level)
-        entity.size = size
-        entity.image = pygame.Surface([size, size], pygame.SRCALPHA, 32).convert_alpha()
+    def from_color(cls, x: int, y: int, size: int, color: str, tag: str, *groups):
+        entity = cls(x, y, size, tag, *groups)
+        entity.image = pygame.Surface(
+            [entity.__size, entity.__size], pygame.SRCALPHA, 32
+        ).convert_alpha()
 
-        match shape:
-            case "circle":
-                pygame.draw.circle(
-                    entity.image, color, (size // 2, size // 2), size // 2
-                )
-            case "square":
-                pygame.draw.rect(entity.image, color, (0, 0, size, size))
+        pygame.draw.circle(
+            entity.image,
+            color,
+            (entity.__size // 2, entity.__size // 2),
+            entity.__size // 2,
+        )
+        entity.rect = entity.image.get_rect(topleft=[entity.__x, entity.__y])
 
         return entity
 
     def draw(self, screen: pygame.Surface) -> None:
         screen.blit(self.image, self.rect)
 
-    def update(self) -> None:
+    def __str__(self) -> str:
+        return self.__tag
+
+    def move(self, _: pygame.sprite.Group) -> None:
+        ...
+
+    def update(self, _: pygame.sprite.Group) -> None:
         ...
 
 
 class MovableEntity(Entity):
-    def __init__(self, level: "Level", size: int, speed: int, image_path: str) -> None:
-        entity = Entity.from_image(level, size, image_path)
+    def __init__(
+        self, x: int, y: int, size: int, speed: int, image_path: str, tag: str, *groups
+    ) -> None:
+        entity = Entity.from_image(x, y, size, image_path, tag, *groups)
         self.__dict__.update(entity.__dict__)
 
-        self.speed = speed
-        self.direction = pygame.math.Vector2(0, 0)
+        self.__speed = speed
+        self.__direction = pygame.math.Vector2(0, 0)
 
-    def update(self) -> None:
-        self.move()
+    @property
+    def direction(self) -> pygame.math.Vector2:
+        return self.__direction
 
-    def move(self) -> None:
-        new_position = self.rect.move(self.direction * self.speed)
-        if not self.check_collision(new_position):
+    def update(self, group: pygame.sprite.Group) -> None:
+        self.move(group)
+
+    def move(self, group: pygame.sprite.Group) -> None:
+        new_position = self.rect.move(self.__direction * self.__speed)
+
+        if not self.check_collision(new_position, group):
             self.rect = new_position
 
         self.wrap_around()
 
-    def check_collision(self, rect: pygame.Rect) -> bool:
-        for wall in self.level.walls:
-            if wall.rect.colliderect(rect):
-                return True
+    def check_collision(self, rect: pygame.Rect, group: pygame.sprite.Group) -> bool:
+        for entity in group.sprites():
+            if str(entity) == "wall":
+                if rect.colliderect(entity.rect):
+                    return True
 
         return False
 
     def wrap_around(self) -> None:
+        gap = 10
         screen_width, screen_height = pygame.display.get_surface().get_size()
 
-        if self.rect.left > screen_width - 10:
-            self.rect.right = 10
-        elif self.rect.right < 10:
-            self.rect.left = screen_width - 10
+        if self.rect.left > screen_width - gap:
+            self.rect.right = gap
+        elif self.rect.right < gap:
+            self.rect.left = screen_width - gap
 
-        if self.rect.top > screen_height - 10:
-            self.rect.bottom = 10
-        elif self.rect.bottom < 10:
-            self.rect.top = screen_height - 10
+        if self.rect.top > screen_height - gap:
+            self.rect.bottom = gap
+        elif self.rect.bottom < gap:
+            self.rect.top = screen_height - gap
+
+    def change_direction(self, x: int, y: int):
+        self.__direction = pygame.math.Vector2(x, y)

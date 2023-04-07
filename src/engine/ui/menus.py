@@ -1,3 +1,4 @@
+from enum import IntEnum
 import pygame
 
 
@@ -48,6 +49,9 @@ class BaseMenu(pygame.sprite.Sprite):
     def change_font(self, font: pygame.font.Font) -> None:
         self.__font = font
 
+    def change_title(self, title: str) -> None:
+        self.__title = title
+
     def handle_keydown(self, key: int) -> None:
         match key:
             case pygame.K_UP:
@@ -83,6 +87,14 @@ class BaseMenu(pygame.sprite.Sprite):
         return self.__title
 
 
+class MenuState(IntEnum):
+    MAIN = 0
+    SETTINGS = 1
+    PAUSE = 2
+    NEW_RECORD = 3
+    GAME_OVER = 4
+
+
 class MenuGroup(pygame.sprite.Group):
     def __init__(self, *sprites: BaseMenu) -> None:
         super().__init__(*sprites)
@@ -97,11 +109,9 @@ class MenuGroup(pygame.sprite.Group):
     def add_option(self, index: int, option: MenuOption) -> None:
         self.sprites()[index].add_option(option)
 
-    def open_menu(self, name: str) -> None:
-        print(self.__current)
-
+    def open_menu(self, index: int) -> None:
         self.__stack.append(self.__current)
-        self.__current = self.__find_menu(name)
+        self.__current = index
 
     def close_menu(self) -> None:
         self.__current = self.__stack.pop() if self.__stack else None
@@ -113,18 +123,11 @@ class MenuGroup(pygame.sprite.Group):
     def update(self) -> None:
         ...
 
-    def __find_menu(self, name: str) -> int:
-        print(name)
-
-        for i, menu in enumerate(self.sprites()):
-            if str(menu) == name:
-                return i
-
     def __bool__(self) -> bool:
         return self.__current is not None
 
 
-class Menu:
+class MenuInterface:
     def __init__(self, callbacks: dict[str, callable]) -> None:
         self.__callbacks = callbacks
 
@@ -144,36 +147,39 @@ class Menu:
             BaseMenu(self.__font, self.__colors, "Головне меню"),
             BaseMenu(self.__font, self.__colors, "Налаштування"),
             BaseMenu(self.__font, self.__colors, "Пауза"),
+            BaseMenu(self.__font, self.__colors, "Результат"),
             BaseMenu(self.__font, self.__colors, "Кінець гри"),
-            BaseMenu(self.__font, self.__colors, "Новий рекорд"),
         )
 
-        self.__menus.add_option(0, MenuOption("Нова гра", self.__start_game))
-        self.__menus.add_option(0, MenuOption("Налаштування", self.open_settings))
-        self.__menus.add_option(0, MenuOption("Вийти", self.__quit_game))
+        self.__menus.add_option(
+            MenuState.PAUSE, MenuOption("Продовжити", self.__resume_game)
+        )
+
+        for state in [
+            MenuState.MAIN,
+            MenuState.PAUSE,
+            MenuState.NEW_RECORD,
+            MenuState.GAME_OVER,
+        ]:
+            self.__menus.add_option(state, MenuOption("Нова гра", self.__start_game))
+            self.__menus.add_option(
+                state, MenuOption("Налаштування", self.open_settings)
+            )
+            self.__menus.add_option(state, MenuOption("Вийти", self.__quit_game))
 
         self.__menus.add_option(
-            1,
+            MenuState.SETTINGS,
             MenuOption(
                 f"Змінити розмір шрифту: {self.__font_sizes[self.__font_size]}",
                 self.__change_font_size,
             ),
         )
-        self.__menus.add_option(1, MenuOption("Зберегти", self.__save_settings))
-        self.__menus.add_option(1, MenuOption("Повернутися", self.open_previous))
-
-        self.__menus.add_option(2, MenuOption("Продовжити", self.__resume_game))
-        self.__menus.add_option(2, MenuOption("Нова гра", self.__start_game))
-        self.__menus.add_option(2, MenuOption("Налаштування", self.open_settings))
-        self.__menus.add_option(2, MenuOption("Вийти", self.__quit_game))
-
-        self.__menus.add_option(3, MenuOption("Нова гра", self.__start_game))
-        self.__menus.add_option(3, MenuOption("Налаштування", self.open_settings))
-        self.__menus.add_option(3, MenuOption("Вийти", self.__quit_game))
-
-        self.__menus.add_option(4, MenuOption("Нова гра", self.__start_game))
-        self.__menus.add_option(4, MenuOption("Налаштування", self.open_settings))
-        self.__menus.add_option(4, MenuOption("Вийти", self.__quit_game))
+        self.__menus.add_option(
+            MenuState.SETTINGS, MenuOption("Зберегти", self.__save_settings)
+        )
+        self.__menus.add_option(
+            MenuState.SETTINGS, MenuOption("Повернутися", self.open_previous)
+        )
 
     def get_current_font_size(self) -> int:
         return self.__current_font_size
@@ -185,23 +191,25 @@ class Menu:
         self.__menus.draw(screen)
 
     def open_settings(self) -> None:
-        self.__menus.open_menu("Налаштування")
+        self.__menus.open_menu(MenuState.SETTINGS)
 
     def open_previous(self) -> None:
         self.__menus.close_menu()
 
     def open_pause(self) -> None:
-        self.__menus.open_menu("Пауза")
+        self.__menus.open_menu(MenuState.PAUSE)
 
     def open_game_over(self) -> None:
-        self.__menus.open_menu("Кінець гри")
+        self.__menus.open_menu(MenuState.GAME_OVER)
 
-    def open_new_record(self) -> None:
-        self.__menus.open_menu("Новий рекорд")
+    def open_new_record(self, score: int) -> None:
+        new_title = f"Ваш результат: {score}"
+
+        self.__menus.sprites()[MenuState.NEW_RECORD].change_title(new_title)
+        self.__menus.open_menu(MenuState.NEW_RECORD)
 
     def open_main(self) -> None:
-        print("open main")
-        self.__menus.open_menu("Головне меню")
+        self.__menus.open_menu(MenuState.MAIN)
 
     def close(self) -> None:
         self.__menus.close_menu()
@@ -229,7 +237,7 @@ class Menu:
             20 if self.__current_font_size == 40 else self.__current_font_size + 10
         )
 
-        self.__menus.sprites()[1].change_option(
+        self.__menus.sprites()[MenuState.SETTINGS].change_option(
             0,
             MenuOption(
                 f"Змінити розмір шрифту: {self.__font_sizes[self.__current_font_size]}",
@@ -241,16 +249,7 @@ class Menu:
         self.__font_size = self.__current_font_size
         self.__font = pygame.font.SysFont("monospace", self.__font_size)
 
-        self.__menus.sprites()[1].change_option(
-            0,
-            MenuOption(
-                f"Змінити розмір шрифту: {self.__font_sizes[self.__current_font_size]}",
-                self.__change_font_size,
-            ),
-        )
-
         for menu in self.__menus.sprites():
-            if isinstance(menu, BaseMenu):
-                menu.change_font(self.__font)
+            menu.change_font(self.__font)
 
         self.open_previous()

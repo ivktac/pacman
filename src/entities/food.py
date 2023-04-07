@@ -1,34 +1,30 @@
 import random
-from typing import TYPE_CHECKING
 from entities.entity import Entity
-
-if TYPE_CHECKING:
-    from engine.level import Level
 
 
 class Food(Entity):
-    def __init__(self, level: "Level", x: int, y: int, type: str | None = None) -> None:
-        self.type = type
+    def __init__(self, x: int, y: int, tag: str = "food", *groups) -> None:
         self.points = random.randint(1, 10)
 
         image_path = None
 
-        match self.type:
+        match tag:
             case "cherry":
                 image_path = "assets/images/cherry.png"
+                tag = "cherry"
                 self.points = 100
             case "blueberry":
                 image_path = "assets/images/blueberry.png"
+                tag = "blueberry"
                 self.points = 300
             case _:
-                ...
+                tag = "food"
 
         if image_path is not None:
-            entity = Entity.from_image(level, size=36, image_path=image_path)
-            position = [x * 40, y * 40]
+            entity = Entity.from_image(x * 40, y * 40, 32, image_path, tag, *groups)
         else:
-            entity = Entity.from_color(level, size=16, color="yellow", shape="circle")
-            position = [x * 40 + entity.size, y * 40 + entity.size]
+            entity = Entity.from_color(
+                x * 40 + 16, y * 40 + 16, 16, "yellow", tag, *groups
+            )
 
         self.__dict__.update(entity.__dict__)
-        self.rect = self.image.get_rect(topleft=position)

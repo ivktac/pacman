@@ -1,60 +1,67 @@
-from typing import TYPE_CHECKING
-
+import os
 import pygame
 
+from entities.player import Player
 from entities.food import Food
 from entities.wall import Wall
 from entities.ghost import Ghost
 
-if TYPE_CHECKING:
-    from game import Game
 
+class Level(pygame.sprite.Group):
+    def __init__(self, number: int, player: Player) -> None:
+        super().__init__()
 
-class Level:
-    def __init__(self, game: "Game") -> None:
-        self.game = game
+        self.__player = player
 
-        self.walls = pygame.sprite.Group()
-        self.foods = pygame.sprite.Group()
-        self.ghosts = pygame.sprite.Group()
+        self.__number = number
 
-    def clean(self) -> None:
-        self.walls.empty()
-        self.foods.empty()
-        self.ghosts.empty()
+        self.load()
+
+    @property
+    def player(self) -> Player:
+        return self.__player
+
+    def load(self) -> None:
+        filename = f"assets/levels/{self.__number}.txt"
+        if not os.path.exists(filename):
+            raise FileNotFoundError(f"Level {self.__number} not found")
+
+        with open(f"assets/levels/{self.__number}.txt", "r") as file:
+            data = file.read().splitlines()
+
+        self.empty()
+
+        self.create(data)
 
     def create(self, data) -> None:
-        self.clean()
-
         for y, line in enumerate(data):
             for x, tile in enumerate(line):
                 match tile:
                     case "=":
-                        self.walls.add(Wall(self, x, y))
+                        self.add(Wall(x, y))
                     case "P":
-                        self.game.pacman.set_position(x * 40 + 5, y * 40 + 5)
+                        self.__player.respawn(x * 40 + 5, y * 40 + 5)
                     case "*":
-                        self.foods.add(Food(self, x, y))
+                        self.add(Food(x, y, "food"))
                     case "C":
-                        self.foods.add(Food(self, x, y, "cherry"))
+                        self.add(Food(x, y, "cherry"))
                     case "S":
-                        self.foods.add(Food(self, x, y, "blueberry"))
+                        self.add(Food(x, y, "blueberry"))
                     case "G":
-                        self.ghosts.add(Ghost(self, x, y))
+                        speed = round(self.__number * 0.25 + 2)
+                        self.add(Ghost(x, y, speed))
 
     def draw(self, screen: pygame.Surface) -> None:
-        self.walls.draw(screen)
-        self.foods.draw(screen)
-        self.ghosts.draw(screen)
-        self.game.pacman.draw(screen)
+        for sprite in self.sprites():
+            sprite.draw(screen)
+
+        self.__player.draw(screen)
 
     def update(self) -> None:
-        self.game.pacman.update()
-        self.ghosts.update()
+        for sprite in self.sprites():
+            sprite.update(self)
 
-    def restart(self) -> None:
-        self.clean()
-        self.game.pacman.respawn()
+        self.__player.update(self)
 
     def is_completed(self) -> bool:
-        return len(self.foods) == 0
+        return not any(isinstance(entity, Food) for entity in self.sprites())

@@ -1,46 +1,45 @@
 import random
-from typing import TYPE_CHECKING
 
 import pygame
 
-from entities.entity import MovableEntity
 
-
-if TYPE_CHECKING:
-    from engine.level import Level
+from entities.entity import Entity, MovableEntity
 
 
 class Ghost(MovableEntity):
-    def __init__(self, level: "Level", x, y) -> None:
-        speed = round(level.game.current_level * 0.5 + 2)
-
+    def __init__(
+        self,
+        x: int,
+        y: int,
+        speed: int,
+        *groups,
+    ) -> None:
         super().__init__(
-            level, size=32, speed=speed, image_path="assets/images/ghost.png"
+            x * 40, y * 40, 32, speed, "assets/images/ghost.png", "ghost", *groups
         )
 
-        self.rect = self.image.get_rect(topleft=[x * 40, y * 40])
-
-    def move(self) -> None:
+    def move(self, group: pygame.sprite.Group) -> None:
         if random.random() < 0.01:
             dx, dy = random.choice([(1, 0), (-1, 0), (0, 1), (0, -1)])
-            self.direction = pygame.math.Vector2(dx, dy)
+            self.change_direction(dx, dy)
 
-        if self.is_pacman_in_sight():
-            dx = self.level.game.pacman.rect.x - self.rect.x
-            dy = self.level.game.pacman.rect.y - self.rect.y
+        if not hasattr(group, "player"):
+            print("No player in group")
+            return
+
+        player = group.player
+
+        if self.is_player_is_sight(player):
+            dx, dy = player.rect.x - self.rect.x, player.rect.y - self.rect.y
 
             if abs(dx) > abs(dy):
-                self.direction = (
-                    pygame.math.Vector2(1, 0) if dx > 0 else pygame.math.Vector2(-1, 0)
-                )
+                self.change_direction(1 if dx > 0 else -1, 0)
             else:
-                self.direction = (
-                    pygame.math.Vector2(0, 1) if dy > 0 else pygame.math.Vector2(0, -1)
-                )
+                self.change_direction(0, 1 if dy > 0 else -1)
 
-        super().move()
+        super().move(group)
 
-    def is_pacman_in_sight(self) -> None:
+    def is_player_is_sight(self, entity: Entity) -> None:
         sight_distance = 200
         sight_rect = self.rect.inflate(sight_distance, sight_distance)
 
@@ -54,4 +53,4 @@ class Ghost(MovableEntity):
         elif self.direction.y < 0:
             sight_rect.y -= sight_distance
 
-        return sight_rect.colliderect(self.level.game.pacman.rect)
+        return sight_rect.colliderect(entity.rect)
