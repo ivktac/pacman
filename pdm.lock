@@ -61,12 +61,6 @@ requires_python = ">=3.6"
 summary = "Python Game Development"
 
 [[package]]
-name = "toml"
-version = "0.10.2"
-requires_python = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
-summary = "Python Library for Tom's Obvious, Minimal Language"
-
-[[package]]
 name = "tomli"
 version = "2.0.1"
 requires_python = ">=3.7"
@@ -74,7 +68,7 @@ summary = "A lil' TOML parser"
 
 [metadata]
 lock_version = "4.1"
-content_hash = "sha256:2807cb584c53762bb0756e999f26b5b70fa56bd19cbc3fbfac808cf24634c7a8"
+content_hash = "sha256:9013164e3c074756e19e2f7ae2f9ffc7b205395cc7fff054ba842f16f9c7275d"
 
 [metadata.files]
 "black 23.3.0" = [
@@ -197,10 +191,6 @@ content_hash = "sha256:2807cb584c53762bb0756e999f26b5b70fa56bd19cbc3fbfac808cf24
     {url = "https://files.pythonhosted.org/packages/fb/c3/405a8af4c5c53cad194e0004c880ea8aad23c0e61e28b3fed2aada9ffa7c/pygame-2.3.0-cp37-cp37m-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:703d5def9d4dbe9c358f63151bee4a55e328dd7737e692f52522bc44be7c7c8c"},
     {url = "https://files.pythonhosted.org/packages/fc/04/9252aee21cec0948f87a663ed9349d67ee24a5daf1f1238210bad2242679/pygame-2.3.0-pp38-pypy38_pp73-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:858d3968aebaca5015ef0ec82c513114a3c3fe64ce910222cfa852a39f03b135"},
     {url = "https://files.pythonhosted.org/packages/ff/52/ab06d9f04cf74e64eda53c3213c5dc25a045f1fed633ecc9059a9a9f8ebf/pygame-2.3.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:23bd3c3a6d4e8acddee2297d609dbc5953d6ba99b0f0cc5ccc2f567889db3785"},
-]
-"toml 0.10.2" = [
-    {url = "https://files.pythonhosted.org/packages/44/6f/7120676b6d73228c96e17f1f794d8ab046fc910d781c8d151120c3f1569e/toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
-    {url = "https://files.pythonhosted.org/packages/be/ba/1f744cdc819428fc6b5084ec34d9b30660f6f9daaf70eead706e3203ec3c/toml-0.10.2.tar.gz", hash = "sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f"},
 ]
 "tomli 2.0.1" = [
     {url = "https://files.pythonhosted.org/packages/97/75/10a9ebee3fd790d20926a90a2547f0bf78f371b2f13aa822c759680ca7b9/tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},
