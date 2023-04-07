@@ -12,7 +12,11 @@ if TYPE_CHECKING:
 
 class Ghost(MovableEntity):
     def __init__(self, level: "Level", x, y) -> None:
-        super().__init__(level, size=32, speed=2, image_path="assets/images/ghost.png")
+        speed = round(level.game.current_level * 0.5 + 2)
+
+        super().__init__(
+            level, size=32, speed=speed, image_path="assets/images/ghost.png"
+        )
 
         self.rect = self.image.get_rect(topleft=[x * 40, y * 40])
 
