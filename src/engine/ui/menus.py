@@ -1,17 +1,20 @@
+from typing import Callable
 from enum import IntEnum
 import pygame
 
+from engine.settings import JsonSettings
+
 
 class MenuOption:
-    def __init__(self, text: str, action: callable) -> None:
-        self.__text = text
+    def __init__(self, label: str, action: Callable) -> None:
+        self.__label = label
         self.__action = action
 
     def __call__(self) -> None:
         self.__action()
 
     def __str__(self) -> str:
-        return self.__text
+        return self.__label
 
 
 class BaseMenu(pygame.sprite.Sprite):
@@ -128,7 +131,7 @@ class MenuGroup(pygame.sprite.Group):
 
 
 class MenuInterface:
-    def __init__(self, callbacks: dict[str, callable]) -> None:
+    def __init__(self, callbacks: dict[str, Callable]) -> None:
         self.__callbacks = callbacks
 
         self.__current_font_size = 20
@@ -203,13 +206,30 @@ class MenuInterface:
         self.__menus.open_menu(MenuState.GAME_OVER)
 
     def open_new_record(self, score: int) -> None:
+        records = JsonSettings("data/records.json")
+        records.load()
+
+        if score > records.get("score", 0):
+            records.set("score", score)
+            records.save()
+
         new_title = f"Ваш результат: {score}"
 
         self.__menus.sprites()[MenuState.NEW_RECORD].change_title(new_title)
         self.__menus.open_menu(MenuState.NEW_RECORD)
 
+        del records
+
     def open_main(self) -> None:
+        records = JsonSettings("data/records.json")
+        records.load()
+
+        self.__menus.sprites()[MenuState.MAIN].change_title(
+            f"Рекорд: {records.get('score', 0)}"
+        )
         self.__menus.open_menu(MenuState.MAIN)
+
+        del records
 
     def close(self) -> None:
         self.__menus.close_menu()
