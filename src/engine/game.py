@@ -5,7 +5,7 @@ import pygame
 from entities.pacman import Pacman
 from engine.level import Level
 from engine.settings import ISettings
-from engine.menu import EndMenu, Menu, SettingsMenu, StartMenu, PauseMenu
+from engine.menu import MenuLoader
 from engine.ui import UI
 
 
@@ -34,17 +34,12 @@ class Game:
         self.score = 0
 
         self.level = Level(self)
-        self.current_level = 1
+        self.current_level = 0
 
         self.pacman = Pacman(self.level)
 
-        self.start_menu = StartMenu(self)
-        self.paused_menu = PauseMenu(self)
-        self.end_menu = EndMenu(self)
-        self.settings_menu = SettingsMenu(self)
-
-        self.previous_menu: Menu | None = None
-        self.current_menu: Menu | None = self.start_menu
+        self.menu_loader = MenuLoader(self)
+        self.menu_loader.show_menu("start")
 
         self.is_paused = False
         self.is_running = True
@@ -54,6 +49,7 @@ class Game:
     def run(self) -> None:
         while self.is_running:
             self.handle_events()
+
             self.update()
             self.draw()
             self.clock.tick(self.fps)
@@ -68,33 +64,30 @@ class Game:
                         self.debug_handle_keydown(event.key)
                     if event.key == pygame.K_ESCAPE:
                         self.toggle_pause()
-                    if self.current_menu:
-                        self.current_menu.handle_keydown(event.key)
-                    else:
-                        self.pacman.handle_keydown(event.key)
+                    self.menu_loader.handle_keydown(event.key)
+                    self.pacman.handle_keydown(event.key)
 
     def update(self) -> None:
-        if self.current_menu:
-            self.current_menu.update()
-        else:
-            if self.pacman.is_dead:
-                self.restart()
-                self.pacman.respawn()
-                self.current_menu = self.end_menu
-                return
+        self.menu_loader.update()
 
-            if self.level.is_completed():
-                self.current_level += 1
-                self.load_level()
-                return
+        if self.pacman.is_dead:
+            self.restart()
+            self.pacman.respawn()
+            self.menu_loader.show_menu("end")
+            return
 
-            self.level.update()
+        if self.level.is_completed():
+            self.current_level += 1
+            self.load_level()
+            return
+
+        self.level.update()
 
     def draw(self) -> None:
         self.clear_screen()
 
-        if self.current_menu:
-            self.current_menu.draw(self.screen)
+        if self.menu_loader.has_menu():
+            self.menu_loader.draw(self.screen)
         else:
             self.level.draw(self.screen)
             self.display_ui()
@@ -105,12 +98,12 @@ class Game:
         self.screen.fill(self.settings["colors"]["background"])  # type: ignore
 
     def start(self) -> None:
-        self.current_menu = None
+        self.menu_loader.clear()
         self.load_level()
 
     def pause(self) -> None:
         self.is_paused = True
-        self.current_menu = self.paused_menu
+        self.menu_loader.show_menu("pause")
 
     def toggle_pause(self) -> None:
         if self.is_paused:
@@ -120,13 +113,14 @@ class Game:
 
     def resume(self) -> None:
         self.is_paused = False
-        self.current_menu = None
+        self.menu_loader.clear()
 
     def restart(self) -> None:
         self.score = 0
         self.current_level = 1
 
-        self.current_menu = None
+        self.menu_loader.clear()
+
         self.is_paused = False
 
         self.level.restart()
@@ -137,14 +131,10 @@ class Game:
         sys.exit()
 
     def show_settings_menu(self) -> None:
-        self.previous_menu = self.current_menu
-        self.current_menu = self.settings_menu
-
-    def show_start_menu(self) -> None:
-        self.current_menu = self.start_menu
+        self.menu_loader.show_menu("settings")
 
     def show_previous_menu(self) -> None:
-        self.current_menu = self.previous_menu
+        self.menu_loader.show_previous_menu()
 
     def display_ui(self) -> None:
         self.ui.display_score(self.screen, self.score)
@@ -161,7 +151,7 @@ class Game:
     def load_level(self) -> None:
         filename = f"assets/levels/{self.current_level}.txt"
         if not os.path.exists(filename):
-            self.current_menu = self.end_menu
+            self.menu_loader.show_menu("end")
             return
 
         with open(filename, "r") as file:
@@ -177,3 +167,5 @@ class Game:
             case pygame.K_F3:
                 self.current_level -= 1
                 self.load_level()
+            case pygame.K_F4:
+                self.pacman.die()
