@@ -90,18 +90,12 @@ class PauseMenu(Menu):
 
 
 class EndMenu(Menu):
-    def __init__(self, game: "Game") -> None:
+    def __init__(self, game: "Game", title: str) -> None:
         options = [
             ("Нова гра", game.restart),
             ("Вийти", game.quit),
         ]
-        super().__init__(game, options, "Кінець гри")  # type: ignore
-
-
-class GameOverMenu(EndMenu):
-    def __init__(self, game: "Game") -> None:
-        super().__init__(game)
-        self.title = "Ви померли"
+        super().__init__(game, options, title)  # type: ignore
 
 
 class SettingsMenu(Menu):

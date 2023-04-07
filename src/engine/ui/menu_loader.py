@@ -1,13 +1,6 @@
 import pygame
 
-from engine.ui.menu import (
-    Menu,
-    StartMenu,
-    PauseMenu,
-    EndMenu,
-    SettingsMenu,
-    GameOverMenu,
-)
+from engine.ui.menu import Menu, StartMenu, PauseMenu, EndMenu, SettingsMenu
 
 from typing import TYPE_CHECKING
 
@@ -21,9 +14,9 @@ class MenuLoader:
         self.menus = {
             "start": StartMenu(game),
             "pause": PauseMenu(game),
-            "end": EndMenu(game),
+            "win": EndMenu(game, "Ви перемогли!"),
             "settings": SettingsMenu(game),
-            "game_over": GameOverMenu(game),
+            "game_over": EndMenu(game, "Ви програли!"),
         }
 
         self.menu_stack: list[Menu] = []
@@ -49,5 +42,5 @@ class MenuLoader:
         if self.menu_stack:
             self.menu_stack[-1].handle_keydown(key)
 
-    def has_menu(self) -> bool:
-        return len(self.menu_stack) > 0
+    def __len__(self) -> int:
+        return len(self.menu_stack)

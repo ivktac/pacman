@@ -88,7 +88,7 @@ class Game:
     def draw(self) -> None:
         self.clear_screen()
 
-        if self.menu_loader.has_menu():
+        if len(self.menu_loader) > 0:
             self.menu_loader.draw(self.screen)
         else:
             self.level.draw(self.screen)
@@ -153,7 +153,7 @@ class Game:
     def load_level(self) -> None:
         filename = f"assets/levels/{self.current_level}.txt"
         if not os.path.exists(filename):
-            self.menu_loader.show_menu("end")
+            self.menu_loader.show_menu("win")
             return
 
         with open(filename, "r") as file:
@@ -168,6 +168,8 @@ class Game:
                 self.load_level()
             case pygame.K_F3:
                 self.current_level -= 1
+                if self.current_level < 1:
+                    self.current_level = 1
                 self.load_level()
             case pygame.K_F4:
                 self.pacman.die()

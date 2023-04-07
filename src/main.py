@@ -1,9 +1,9 @@
 from engine.game import Game
-from engine.settings import TomlSettings
+from engine.settings import JsonSettings
 
 
 def main() -> None:
-    settings = TomlSettings()
+    settings = JsonSettings()
     game = Game(settings)
     game.run()
 
