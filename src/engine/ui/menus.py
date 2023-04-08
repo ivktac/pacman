@@ -150,8 +150,8 @@ class Menu:
         self.__callbacks = callbacks
         self.__settings_manager = settings_manager
 
-        self.__font = self.__settings_manager.get_font()
         self.__font_size = self.__settings_manager.get_font_size()
+        self.__font = self.__settings_manager.get_font()
 
         self.__menus = MenuGroup(BaseMenu(self.__font, self.__colors, "Головне меню"))
 
@@ -187,7 +187,7 @@ class Menu:
         new_title = f"Ваш результат: {score}"
 
         if score > self.__settings_manager.get_highscore():
-            new_title = f"Новий рекорд: {score}"
+            new_title = f"Новий рекорд: {score}!!!"
             self.__settings_manager.set("highscore", score)
             self.__settings_manager.save()
 
@@ -228,11 +228,7 @@ class Menu:
         menu.add_option(MenuOption("Вийти", self.__quit_game))
 
     def __add_settings_options(self, menu: BaseMenu) -> None:
-        menu.add_option(
-            MenuOption(
-                f"Змінити розмір шрифт: {self.__font_size}", self.__change_font_size
-            )
-        )
+        menu.add_option(MenuOption("Змінити розмір шрифт", self.__change_font_size))
         menu.add_option(MenuOption("Зберегти", self.__save_settings))
         menu.add_option(MenuOption("Назад", self.open_previous))
 

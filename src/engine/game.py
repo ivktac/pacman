@@ -20,6 +20,13 @@ class Game:
             self.__settings.get_size(), pygame.HWSURFACE | pygame.DOUBLEBUF
         )
 
+        self.__background_image = pygame.image.load(
+            "assets/images/background.jpg"
+        ).convert()
+        self.__background_image = pygame.transform.scale(
+            self.__background_image, self.__settings.get_size()
+        )
+
         self.__clock = pygame.time.Clock()
 
         self.__current_level = 1
@@ -101,7 +108,7 @@ class Game:
     def clear_screen(
         self,
     ) -> None:
-        self.__screen.fill("black")
+        self.__screen.blit(self.__background_image, (0, 0))
 
     def start(self) -> None:
         self.__menu.close()
