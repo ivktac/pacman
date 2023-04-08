@@ -43,8 +43,14 @@ class Game:
     def run(self) -> None:
         while self.__is_running:
             self.handle_events()
+
             self.update()
+
+            self.clear_screen()
+
             self.draw()
+
+            pygame.display.flip()
 
             self.__clock.tick(60)
 
@@ -80,21 +86,18 @@ class Game:
         self.__level.update()
 
     def draw(self) -> None:
-        self.clear_screen()
-
         if self.__menu.is_open():
             self.__menu.draw(self.__screen)
-        else:
-            self.__level.draw(self.__screen)
-            self.__ui.display(
-                self.__screen,
-                self.__settings.get_font(),
-                self.__player.score(),
-                self.__current_level,
-                self.__player.health(),
-            )
+            return
 
-        pygame.display.flip()
+        self.__level.draw(self.__screen)
+        self.__ui.display(
+            self.__screen,
+            self.__settings.get_font(),
+            self.__player.score(),
+            self.__current_level,
+            self.__player.health(),
+        )
 
     def clear_screen(
         self,
