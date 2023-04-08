@@ -1,9 +1,10 @@
 import sys
 import pygame
+from engine.settings import JsonSettings, SettingsManager
 
 from entities.player import Player
 from engine.level import Level
-from engine.ui.menus import MenuInterface
+from engine.ui.menus import Menu
 from engine.ui.ui import UI
 
 
@@ -12,9 +13,11 @@ class Game:
         pygame.init()
 
         pygame.display.set_caption("Pacman")
+        self.__settings = SettingsManager(JsonSettings("data/settings.json"))
+        self.__settings.load()
 
         self.__screen = pygame.display.set_mode(
-            (800, 800), pygame.HWSURFACE | pygame.DOUBLEBUF
+            self.__settings.get_size(), pygame.HWSURFACE | pygame.DOUBLEBUF
         )
 
         self.__clock = pygame.time.Clock()
@@ -23,8 +26,9 @@ class Game:
 
         self.__player: Player = Player(-100, -100)
 
-        self.__menu = MenuInterface(
-            {"start": self.start, "quit": self.quit, "resume": self.resume}
+        self.__menu = Menu(
+            {"start": self.start, "quit": self.quit, "resume": self.resume},
+            self.__settings,
         )
         self.__menu.open_main()
 
@@ -59,7 +63,9 @@ class Game:
         if self.__level is None:
             return
 
-        self.__menu.update()
+        if self.__menu.is_open():
+            self.__menu.update()
+            return
 
         if self.__player.dead() and self.__player.time_since_death() > 3500:
             self.__menu.open_new_record(self.__player.score())
@@ -82,7 +88,7 @@ class Game:
             self.__level.draw(self.__screen)
             self.__ui.display(
                 self.__screen,
-                self.__menu.get_font(),
+                self.__settings.get_font(),
                 self.__player.score(),
                 self.__current_level,
                 self.__player.health(),
