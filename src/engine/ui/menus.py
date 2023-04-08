@@ -16,6 +16,9 @@ class MenuOption:
     def __str__(self) -> str:
         return self.__label
 
+    def change_label(self, label: str) -> None:
+        self.__label = label
+
 
 class BaseMenu(pygame.sprite.Sprite):
     def __init__(
@@ -46,8 +49,8 @@ class BaseMenu(pygame.sprite.Sprite):
     def add_option(self, option: MenuOption) -> None:
         self.__options.append(option)
 
-    def change_option(self, index: int, option: MenuOption) -> None:
-        self.__options[index] = option
+    def change_option_label(self, index: int, label: str) -> None:
+        self.__options[index].change_label(label)
 
     def change_font(self, font: pygame.font.Font) -> None:
         self.__font = font
@@ -137,19 +140,18 @@ class MenuInterface:
     def __init__(self, callbacks: dict[str, Callable]) -> None:
         self.__callbacks = callbacks
 
-        self.__font_sizes = {
-            20: "Малий",
-            30: "Середній",
-            40: "Великий",
+        self.__fonts = {
+            "Малий": pygame.font.SysFont("monospace", 30),
+            "Середній": pygame.font.SysFont("monospace", 40),
+            "Великий": pygame.font.SysFont("monospace", 50),
         }
 
         self.__settings = JsonSettings("data/settings.json")
         self.__settings.load()
 
-        self.__font_size = self.__settings.get("font_size", 20)
-        self.__current_font_size_name = self.__font_sizes[self.__font_size]
+        self.__font_size_name = self.__settings.get("font", "Середній")
+        self.__font = self.__fonts[self.__font_size_name]
 
-        self.__font = pygame.font.SysFont("monospace", self.__font_size)
         self.__colors = {"title": "blue", "text": "white", "selected": "yellow"}
 
         self.__menus = MenuGroup(
@@ -179,10 +181,11 @@ class MenuInterface:
         self.__menus.add_option(
             MenuState.SETTINGS,
             MenuOption(
-                f"Змінити розмір шрифту: {self.__font_sizes[self.__font_size]}",
+                f"Змінити розмір шрифту: {self.__font_size_name}",
                 self.__change_font_size,
             ),
         )
+
         self.__menus.add_option(
             MenuState.SETTINGS, MenuOption("Зберегти", self.__save_settings)
         )
@@ -249,26 +252,19 @@ class MenuInterface:
         self.__callbacks["resume"]()
 
     def __change_font_size(self) -> None:
-        font_sizes = list(self.__font_sizes.keys())
-        current_index = font_sizes.index(self.__font_size)
-        next_index = (current_index + 1) % len(font_sizes)
-        self.__font_size = font_sizes[next_index]
-        self.__current_font_size_name = self.__font_sizes[self.__font_size]
+        font_sizes = list(self.__fonts.keys())
+        index = font_sizes.index(self.__font_size_name)
+        self.__font_size_name = font_sizes[(index + 1) % len(font_sizes)]
 
-        self.__font = pygame.font.SysFont("monospace", self.__font_size)
+        self.__menus[MenuState.SETTINGS].change_option_label(
+            0, f"Змінити розмір шрифту: {self.__font_size_name}"
+        )
+
+    def __save_settings(self) -> None:
+        self.__settings.set("font", self.__font_size_name)
+        self.__font = self.__fonts[self.__font_size_name]
 
         for menu in self.__menus:
             menu.change_font(self.__font)
 
-        self.__menus[MenuState.SETTINGS].change_option(
-            0,
-            MenuOption(
-                f"Змінити розмір шрифту: {self.__current_font_size_name}",
-                self.__change_font_size,
-            ),
-        )
-
-        self.__settings.set("font_size", self.__font_size)
-
-    def __save_settings(self) -> None:
         self.__settings.save()
