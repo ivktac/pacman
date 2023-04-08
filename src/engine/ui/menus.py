@@ -166,12 +166,10 @@ class Menu:
         return self.__font
 
     def update(self) -> None:
-        if self.is_open():
-            self.__menus.update()
+        self.__menus.update()
 
     def draw(self, screen: pygame.Surface) -> None:
-        if self.is_open():
-            self.__menus.draw(screen)
+        self.__menus.draw(screen)
 
     def open_settings(self) -> None:
         self.__menus.open_menu(MenuState.SETTINGS)
