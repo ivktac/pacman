@@ -69,9 +69,7 @@ class Game:
         if self.__level is None:
             return
 
-        if self.__menu.is_open():
-            self.__menu.update()
-            return
+        self.__menu.update()
 
         if self.__player.dead() and self.__player.time_since_death() > 3500:
             self.__menu.open_new_record(self.__player.score())
