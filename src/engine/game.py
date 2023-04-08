@@ -85,7 +85,6 @@ class Game:
             return
 
         if self.__level.is_completed():
-            self.__current_level += 1
             self.load_level(self.__current_level + 1)
             return
 

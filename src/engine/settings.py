@@ -53,7 +53,7 @@ class FontManager:
         self.__init_fonts()
 
     def __init_fonts(self) -> None:
-        for size_name, size in zip(self.__size_names, [16, 32, 48, 64]):
+        for size_name, size in zip(self.__size_names, [32, 48, 64, 80]):
             self.__fonts[size_name] = pygame.font.Font(None, size)
 
     def get(self, name: str) -> pygame.font.Font:

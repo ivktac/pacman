@@ -69,6 +69,10 @@ class MovableEntity(Entity):
     @property
     def direction(self) -> pygame.math.Vector2:
         return self.__direction
+    
+    @property
+    def speed(self) -> int:
+        return self.__speed
 
     def update(self, group: pygame.sprite.Group) -> None:
         self.move(group)

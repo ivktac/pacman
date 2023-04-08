@@ -28,6 +28,9 @@ class Ghost(MovableEntity):
 
         player = group.player
 
+        if not isinstance(player, Entity):
+            return
+
         if self.is_player_is_sight(player):
             dx, dy = player.rect.x - self.rect.x, player.rect.y - self.rect.y
 
@@ -39,7 +42,7 @@ class Ghost(MovableEntity):
         super().move(group)
 
     def is_player_is_sight(self, entity: Entity) -> None:
-        sight_distance = 200
+        sight_distance = 100 * self.speed
         sight_rect = self.rect.inflate(sight_distance, sight_distance)
 
         if self.direction.x > 0:
