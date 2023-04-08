@@ -123,6 +123,9 @@ class MenuGroup(pygame.sprite.Group):
         if self.__current is not None:
             self.sprites()[self.__current].draw(screen)
 
+    def __getitem__(self, index: int) -> BaseMenu:
+        return self.sprites()[index]
+
     def update(self) -> None:
         ...
 
@@ -134,14 +137,17 @@ class MenuInterface:
     def __init__(self, callbacks: dict[str, Callable]) -> None:
         self.__callbacks = callbacks
 
-        self.__current_font_size = 20
-        self.__font_size = 20
-
         self.__font_sizes = {
             20: "Малий",
             30: "Середній",
             40: "Великий",
         }
+
+        self.__settings = JsonSettings("data/settings.json")
+        self.__settings.load()
+
+        self.__font_size = self.__settings.get("font_size", 20)
+        self.__current_font_size_name = self.__font_sizes[self.__font_size]
 
         self.__font = pygame.font.SysFont("monospace", self.__font_size)
         self.__colors = {"title": "blue", "text": "white", "selected": "yellow"}
@@ -184,8 +190,8 @@ class MenuInterface:
             MenuState.SETTINGS, MenuOption("Повернутися", self.open_previous)
         )
 
-    def get_current_font_size(self) -> int:
-        return self.__current_font_size
+    def get_font(self) -> pygame.font.Font:
+        return self.__font
 
     def update(self) -> None:
         self.__menus.update()
@@ -206,30 +212,20 @@ class MenuInterface:
         self.__menus.open_menu(MenuState.GAME_OVER)
 
     def open_new_record(self, score: int) -> None:
-        records = JsonSettings("data/records.json")
-        records.load()
-
-        if score > records.get("score", 0):
-            records.set("score", score)
-            records.save()
+        if score > self.__settings.get("score", 0):
+            self.__settings.set("score", score)
+            self.__settings.save()
 
         new_title = f"Ваш результат: {score}"
 
-        self.__menus.sprites()[MenuState.NEW_RECORD].change_title(new_title)
+        self.__menus[MenuState.NEW_RECORD].change_title(new_title)
         self.__menus.open_menu(MenuState.NEW_RECORD)
 
-        del records
-
     def open_main(self) -> None:
-        records = JsonSettings("data/records.json")
-        records.load()
-
-        self.__menus.sprites()[MenuState.MAIN].change_title(
-            f"Рекорд: {records.get('score', 0)}"
+        self.__menus[MenuState.MAIN].change_title(
+            f"Рекорд: {self.__settings.get('score', 0)}"
         )
         self.__menus.open_menu(MenuState.MAIN)
-
-        del records
 
     def close(self) -> None:
         self.__menus.close_menu()
@@ -253,23 +249,26 @@ class MenuInterface:
         self.__callbacks["resume"]()
 
     def __change_font_size(self) -> None:
-        self.__current_font_size = (
-            20 if self.__current_font_size == 40 else self.__current_font_size + 10
-        )
+        font_sizes = list(self.__font_sizes.keys())
+        current_index = font_sizes.index(self.__font_size)
+        next_index = (current_index + 1) % len(font_sizes)
+        self.__font_size = font_sizes[next_index]
+        self.__current_font_size_name = self.__font_sizes[self.__font_size]
 
-        self.__menus.sprites()[MenuState.SETTINGS].change_option(
+        self.__font = pygame.font.SysFont("monospace", self.__font_size)
+
+        for menu in self.__menus:
+            menu.change_font(self.__font)
+
+        self.__menus[MenuState.SETTINGS].change_option(
             0,
             MenuOption(
-                f"Змінити розмір шрифту: {self.__font_sizes[self.__current_font_size]}",
+                f"Змінити розмір шрифту: {self.__current_font_size_name}",
                 self.__change_font_size,
             ),
         )
 
+        self.__settings.set("font_size", self.__font_size)
+
     def __save_settings(self) -> None:
-        self.__font_size = self.__current_font_size
-        self.__font = pygame.font.SysFont("monospace", self.__font_size)
-
-        for menu in self.__menus.sprites():
-            menu.change_font(self.__font)
-
-        self.open_previous()
+        self.__settings.save()

@@ -82,7 +82,7 @@ class Game:
             self.__level.draw(self.__screen)
             self.__ui.display(
                 self.__screen,
-                pygame.font.SysFont("Arial", self.__menu.get_current_font_size()),
+                self.__menu.get_font(),
                 self.__player.score(),
                 self.__current_level,
                 self.__player.health(),
