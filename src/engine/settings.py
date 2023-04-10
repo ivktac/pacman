@@ -62,25 +62,6 @@ class FontManager:
     def get_size_names(self) -> list[str]:
         return self.__size_names
 
-    def get_default(self) -> pygame.font.Font:
-        return self.__fonts["default"]
-
-    def get_small(self) -> pygame.font.Font:
-        return self.__fonts["small"]
-
-    def get_large(self) -> pygame.font.Font:
-        return self.__fonts["large"]
-
-    def get_huge(self) -> pygame.font.Font:
-        return self.__fonts["huge"]
-
-    def get_next_size_name(self, name: str) -> str:
-        index = self.__size_names.index(name)
-        index += 1
-        if index >= len(self.__size_names):
-            index = 0
-        return self.__size_names[index]
-
 
 class SettingsManager:
     def __init__(self, settings: AbstractSettings) -> None:

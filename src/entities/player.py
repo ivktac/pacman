@@ -1,4 +1,5 @@
 import pygame
+from engine.animation import Animation
 
 from entities.entity import MovableEntity, Entity
 
@@ -9,26 +10,20 @@ class Player(MovableEntity):
 
         self.__image_idle = self.image
 
-        walk_image = pygame.image.load("assets/images/walk.png").convert_alpha()
-        self.__walk_frames = self.split_frames(walk_image, (self.size, self.size), 3)
-
-        explosion_image = pygame.image.load(
-            "assets/images/explosion.png"
-        ).convert_alpha()
-        self.__explosion_frames = self.split_frames(
-            explosion_image, (self.size - 2, self.size), 10
+        self.__animation = Animation(
+            {
+                "walk": {"image_path": "assets/images/walk.png", "num_frames": 3},
+                "explosion": {
+                    "image_path": "assets/images/explosion.png",
+                    "num_frames": 10,
+                },
+            },
+            (self.size, self.size),
         )
 
-        self.image = self.__image_idle
         self.rect = self.image.get_rect()
 
         self.__score = 0
-
-        self.__frame_counter = 0
-        self.__current_frame = 0
-
-        self.__exploding = False
-        self.__explosion_frame_delay = 3000 // len(self.__explosion_frames)
 
         self.__is_dead = False
         self.__death_time = 0
@@ -45,19 +40,6 @@ class Player(MovableEntity):
         self.__blink_end_time = 0
         self.__visible = True
 
-    @staticmethod
-    def split_frames(
-        image: pygame.Surface, frame_size: tuple[int, int], num_frames: int
-    ) -> list[pygame.Surface]:
-        frame_width, frame_height = frame_size
-
-        frames = []
-        for i in range(num_frames):
-            frame = image.subsurface((i * frame_width, 0, frame_width, frame_height))
-            frames.append(frame)
-
-        return frames
-
     def score(self) -> int:
         return self.__score
 
@@ -71,7 +53,7 @@ class Player(MovableEntity):
         return pygame.time.get_ticks() - self.__death_time
 
     def draw(self, screen: pygame.Surface) -> None:
-        if self.__visible or self.__exploding:
+        if self.__visible:
             screen.blit(self.image, self.rect.topleft)
 
     def update(self, group: pygame.sprite.Group) -> None:
@@ -95,11 +77,8 @@ class Player(MovableEntity):
         self.blink()
 
     def update_pacman_frame(self):
-        self.__frame_counter += 1
-        if self.__frame_counter > 10:
-            self.__frame_counter = 0
-            self.__current_frame = (self.__current_frame + 1) % len(self.__walk_frames)
-        self.image = self.__walk_frames[self.__current_frame]
+        self.__animation.update_frame("walk", 10)
+        self.image = self.__animation.get_current_frame("walk")
 
     def rotate(self) -> pygame.Surface:
         angle = self.direction.angle_to(pygame.math.Vector2(1, 0))
@@ -119,15 +98,21 @@ class Player(MovableEntity):
         current_time = pygame.time.get_ticks()
 
         elapsed_time = current_time - self.__death_time
+        frame_delay = 3000 // len(self.__animation.animations["explosion"])
 
-        self.__current_frame = elapsed_time // self.__explosion_frame_delay
-        self.__current_frame = min(
-            self.__current_frame, len(self.__explosion_frames) - 1
+        self.__animation.current_frames["explosion"] = elapsed_time // frame_delay
+
+        self.__animation.current_frames["explosion"] = min(
+            self.__animation.current_frames["explosion"],
+            len(self.__animation.animations["explosion"]) - 1,
         )
 
-        self.image = self.__explosion_frames[self.__current_frame]
+        self.image = self.__animation.get_current_frame("explosion")
 
-        if self.__current_frame == len(self.__explosion_frames) - 1:
+        if (
+            self.__animation.current_frames["explosion"]
+            == len(self.__animation.animations["explosion"]) - 1
+        ):
             self.kill()
 
     def die(self) -> None:

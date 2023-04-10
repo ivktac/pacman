@@ -146,7 +146,7 @@ class Menu:
         callbacks: dict[str, Callable],
         settings_manager: SettingsManager,
     ) -> None:
-        self.__colors = {"title": "blue", "text": "white", "selected": "yellow"}
+        self.__colors = {"title": "blue", "text": "black", "selected": "yellow"}
         self.__callbacks = callbacks
         self.__settings_manager = settings_manager
 
