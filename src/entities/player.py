@@ -109,11 +109,7 @@ class Player(MovableEntity):
 
         self.image = self.__animation.get_current_frame("explosion")
 
-        if (
-            self.__animation.current_frames["explosion"]
-            == len(self.__animation.animations["explosion"]) - 1
-        ):
-            self.kill()
+        self.kill()
 
     def die(self) -> None:
         self.__is_dead = True
