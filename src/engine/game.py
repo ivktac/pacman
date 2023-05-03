@@ -95,7 +95,9 @@ class Game:
             self.__menu.draw(self.__screen)
             return
 
-        self.__level.draw(self.__screen)
+        if self.__level:
+            self.__level.draw(self.__screen)
+
         self.__ui.display(
             self.__screen,
             self.__settings.get_font(),
