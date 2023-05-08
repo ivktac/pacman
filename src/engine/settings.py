@@ -86,6 +86,9 @@ class SettingsManager:
     def get_highscore(self) -> int:
         return self.__settings.get("highscore", 0)
 
+    def get_sound_enabled(self) -> bool:
+        return self.__settings.get("sound", True)
+
     def set(self, key: str, value: Any) -> None:
         self.__settings.set(key, value)
 

@@ -1,4 +1,5 @@
 {
     "highscore": 2826,
-    "font": "large"
+    "font": "default",
+    "sound": false
 }

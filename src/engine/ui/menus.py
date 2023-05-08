@@ -229,6 +229,7 @@ class Menu:
 
     def __add_settings_options(self, menu: BaseMenu) -> None:
         menu.add_option(MenuOption("Змінити розмір шрифт", self.__change_font_size))
+        menu.add_option(MenuOption("Увімкнути/вимкнути звук", self.__change_sound))
         menu.add_option(MenuOption("Зберегти", self.__save_settings))
         menu.add_option(MenuOption("Назад", self.open_previous))
 
@@ -240,6 +241,21 @@ class Menu:
 
     def __resume_game(self) -> None:
         self.__callbacks["resume"]()
+
+    def __change_sound(self) -> None:
+        self.__settings_manager.set(
+            "sound", not self.__settings_manager.get_sound_enabled()
+        )
+
+        self.__menus[MenuState.SETTINGS].change_option_label(
+            1,
+            "Увімкнути/вимкнути звук: "
+            + (
+                "увімкнено"
+                if self.__settings_manager.get_sound_enabled()
+                else "вимкнено"
+            ),
+        )
 
     def __change_font_size(self) -> None:
         names = self.__settings_manager.get_font_size_names()
