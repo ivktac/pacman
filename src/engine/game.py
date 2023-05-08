@@ -17,7 +17,8 @@ class Game:
         pygame.display.set_caption("Pacman")
 
         pygame.mixer.music.load("assets/sounds/music.wav")
-        
+        pygame.mixer.music.set_volume(0.3)
+
         self.__settings = SettingsManager(JsonSettings("data/settings.json"))
         self.__settings.load()
 
@@ -58,7 +59,7 @@ class Game:
         while self.__is_running:
             self.__is_sound_enabled = self.__settings.get_sound_enabled()
 
-            self.soundtrack()            
+            self.soundtrack()
 
             self.handle_events()
 
@@ -74,9 +75,18 @@ class Game:
 
     def soundtrack(self) -> None:
         if self.__is_sound_enabled:
-            pygame.mixer.music.unpause()
+            if not pygame.mixer.music.get_busy():
+                pygame.mixer.music.play(-1)
+            else:
+                pygame.mixer.music.unpause()
+
+            if self.__level:
+                self.__level.enable_sound()
         else:
             pygame.mixer.music.pause()
+
+            if self.__level:
+                self.__level.disable_sound()
 
     def handle_events(self) -> None:
         for event in pygame.event.get():
@@ -95,6 +105,7 @@ class Game:
 
         if self.__menu.is_open():
             self.__menu.update()
+            return            
 
         if self.__player.dead() and self.__player.time_since_death() > 3500:
             self.__menu.open_new_record(self.__player.score())
@@ -129,8 +140,6 @@ class Game:
         self.__screen.blit(self.__background_image, (0, 0))
 
     def start(self) -> None:
-        pygame.mixer.music.play(-1)
-
         self.__menu.close()
         self.__is_paused = False
 

@@ -63,5 +63,11 @@ class Level(pygame.sprite.Group):
 
         self.__player.update(self)
 
+    def disable_sound(self) -> None:
+        self.__player.disable_sound()
+
+    def enable_sound(self) -> None:
+        self.__player.enable_sound()
+
     def is_completed(self) -> bool:
         return not any(isinstance(entity, Food) for entity in self.sprites())

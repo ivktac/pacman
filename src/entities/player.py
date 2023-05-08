@@ -40,6 +40,10 @@ class Player(MovableEntity):
         self.__blink_end_time = 0
         self.__visible = True
 
+        self.death_sound = pygame.mixer.Sound("assets/sounds/pacman_death.wav")
+        self.chomp_sound = pygame.mixer.Sound("assets/sounds/pacman_chomp.wav")
+        self.eatfruit_sound = pygame.mixer.Sound("assets/sounds/pacman_eatfruit.wav")
+
     def score(self) -> int:
         return self.__score
 
@@ -95,6 +99,9 @@ class Player(MovableEntity):
             self.__visible = True
 
     def animate_explosion(self) -> None:
+        if self.time_since_death() < 1000:
+            self.death_sound.play()
+
         current_time = pygame.time.get_ticks()
 
         elapsed_time = current_time - self.__death_time
@@ -113,7 +120,6 @@ class Player(MovableEntity):
 
     def die(self) -> None:
         self.__is_dead = True
-        self.__exploding = True
         self.__death_time = pygame.time.get_ticks()
 
         self.change_direction(0, 0)
@@ -122,9 +128,12 @@ class Player(MovableEntity):
         match str(food):
             case "cherry":
                 self.increase_health()
+                self.eatfruit_sound.play()
             case "blueberry":
                 self.give_immunity()
+                self.eatfruit_sound.play()
             case _:
+                self.chomp_sound.play()
                 ...
 
         self.__score += food.points
@@ -176,3 +185,13 @@ class Player(MovableEntity):
                 self.change_direction(-1, 0)
             case pygame.K_RIGHT | pygame.K_d:
                 self.change_direction(1, 0)
+
+    def disable_sound(self) -> None:
+        self.death_sound.set_volume(0)
+        self.chomp_sound.set_volume(0)
+        self.eatfruit_sound.set_volume(0)
+    
+    def enable_sound(self) -> None:
+        self.death_sound.set_volume(1)
+        self.chomp_sound.set_volume(0.5)
+        self.eatfruit_sound.set_volume(1)
