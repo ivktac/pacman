@@ -28,7 +28,7 @@ class Player(MovableEntity):
         self.__is_dead = False
         self.__death_time = 0
 
-        self.__max_health = 3
+        self.__max_health = 1
         self.__health = self.__max_health
 
         self.__immunity_duration = 3000
@@ -66,19 +66,15 @@ class Player(MovableEntity):
             screen.blit(self.image, self.rect.topleft)
 
     def update(self, group: pygame.sprite.Group) -> None:
+        self.animate()
+
+        if not self.__is_dead:
+            self.move(group)
+
+    def animate(self) -> None:
         if self.__is_dead:
             return self.animate_explosion()
 
-        if self.__health <= 0:
-            return self.die()
-
-        if self.__ability:
-            self.update_ability()
-           
-        self.move(group)
-        self.animate()
-
-    def animate(self) -> None:
         if self.direction.magnitude() == 0:
             self.image = self.__image_idle
         else:
@@ -87,10 +83,6 @@ class Player(MovableEntity):
         self.image = self.rotate()
 
         self.blink()
-
-    def update_ability(self) -> None:
-        if pygame.time.get_ticks() > self.__ability_end_time:
-            self.__ability = False
 
     def update_pacman_frame(self):
         self.__animation.update_frame("walk", 10)
@@ -111,9 +103,6 @@ class Player(MovableEntity):
             self.__visible = True
 
     def animate_explosion(self) -> None:
-        if self.time_since_death() < 1000:
-            self.death_sound.play()
-
         current_time = pygame.time.get_ticks()
 
         elapsed_time = current_time - self.__death_time
@@ -128,12 +117,16 @@ class Player(MovableEntity):
 
         self.image = self.__animation.get_current_frame("explosion")
 
-        self.kill()
+        if (self.__animation.current_frames["explosion"] + 1) == len(
+            self.__animation.animations["explosion"]
+        ):
+            self.death_sound.stop()
+            self.kill()
 
     def die(self) -> None:
+        self.death_sound.play()
         self.__is_dead = True
         self.__death_time = pygame.time.get_ticks()
-
         self.change_direction(0, 0)
 
     def eat_food(self, food: Entity) -> None:
@@ -176,16 +169,19 @@ class Player(MovableEntity):
             self.__health -= 1
             self.give_immunity()
 
+        if self.__health <= 0:
+            self.die()
+
     def check_collision(self, rect: pygame.Rect, group: pygame.sprite.Group) -> bool:
         for entity in group.sprites():
             if self.rect.colliderect(entity.rect):
                 match str(entity):
                     case "ghost":
+                        self.take_damage()
                         if self.__ability:
                             entity.kill()
                             self.__score += 1000
-                        else:
-                            self.take_damage()
+                            self.__ability = False
                     case "food" | "cherry" | "blueberry":
                         self.eat_food(entity)
                         entity.kill()
@@ -211,7 +207,7 @@ class Player(MovableEntity):
         self.death_sound.set_volume(0)
         self.chomp_sound.set_volume(0)
         self.eatfruit_sound.set_volume(0)
-    
+
     def enable_sound(self) -> None:
         self.death_sound.set_volume(1)
         self.chomp_sound.set_volume(0.5)
