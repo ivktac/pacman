@@ -28,7 +28,7 @@ class Player(MovableEntity):
         self.__is_dead = False
         self.__death_time = 0
 
-        self.__max_health = 1
+        self.__max_health = 3
         self.__health = self.__max_health
 
         self.__immunity_duration = 3000
