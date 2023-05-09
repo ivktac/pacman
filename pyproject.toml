@@ -15,6 +15,7 @@ dev = ["black>=23.3.0", "mypy>=1.2.0"]
 
 [tool.pdm.scripts]
 start = "python src/main.py"
+
 [tool.poetry]
 name = "pacman"
 version = "0.1.0"
