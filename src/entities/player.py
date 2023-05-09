@@ -36,6 +36,11 @@ class Player(MovableEntity):
 
         self.__immunity = False
 
+        self.__ability = False
+
+        self.__ability_duration = 3000
+        self.__ability_end_time = 0
+
         self.__blink_duration = 200
         self.__blink_end_time = 0
         self.__visible = True
@@ -67,6 +72,9 @@ class Player(MovableEntity):
         if self.__health <= 0:
             return self.die()
 
+        if self.__ability:
+            self.update_ability()
+           
         self.move(group)
         self.animate()
 
@@ -79,6 +87,10 @@ class Player(MovableEntity):
         self.image = self.rotate()
 
         self.blink()
+
+    def update_ability(self) -> None:
+        if pygame.time.get_ticks() > self.__ability_end_time:
+            self.__ability = False
 
     def update_pacman_frame(self):
         self.__animation.update_frame("walk", 10)
@@ -131,6 +143,7 @@ class Player(MovableEntity):
                 self.eatfruit_sound.play()
             case "blueberry":
                 self.give_immunity()
+                self.give_ability()
                 self.eatfruit_sound.play()
             case _:
                 self.chomp_sound.play()
@@ -150,6 +163,10 @@ class Player(MovableEntity):
     def increase_health(self) -> None:
         self.__health = min(self.__health + 1, self.__max_health)
 
+    def give_ability(self) -> None:
+        self.__ability = True
+        self.__ability_end_time = pygame.time.get_ticks() + self.__ability_duration
+
     def give_immunity(self) -> None:
         self.__immunity = True
         self.__immunity_end_time = pygame.time.get_ticks() + self.__immunity_duration
@@ -164,7 +181,11 @@ class Player(MovableEntity):
             if self.rect.colliderect(entity.rect):
                 match str(entity):
                     case "ghost":
-                        self.take_damage()
+                        if self.__ability:
+                            entity.kill()
+                            self.__score += 1000
+                        else:
+                            self.take_damage()
                     case "food" | "cherry" | "blueberry":
                         self.eat_food(entity)
                         entity.kill()
